@@ -7,12 +7,7 @@ export class Rect extends Shape {
   private _height: number;
 
   constructor(
-    id: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    fill?: string,
+    id: string, x: number, y: number, width: number, height: number, fill?: string,
   ) {
     super(id);
     this._x = x;
@@ -27,16 +22,12 @@ export class Rect extends Shape {
   get width(): number { return this._width; }
   get height(): number { return this._height; }
 
-  getTagName(): string {
-    return "rect";
-  }
+  getTagName(): string { return "rect"; }
 
   getAttributes(): Record<string, string> {
     const attrs: Record<string, string> = {
-      x: formatNumber(this._x),
-      y: formatNumber(this._y),
-      width: formatNumber(this._width),
-      height: formatNumber(this._height),
+      x: formatNumber(this._x), y: formatNumber(this._y),
+      width: formatNumber(this._width), height: formatNumber(this._height),
     };
     this.appendPresentation(attrs);
     return attrs;
@@ -50,15 +41,13 @@ export class Rect extends Shape {
     return this.trySetPresentation(name, value);
   }
 
-  moveBy(dx: number, dy: number): void {
-    this._x += dx;
-    this._y += dy;
+  moveBy(dx: number, dy: number): void { this._x += dx; this._y += dy; }
+  scaleFromOrigin(factor: number): void {
+    this._x *= factor; this._y *= factor;
+    this._width *= factor; this._height *= factor;
   }
 
-  scaleFromOrigin(factor: number): void {
-    this._x *= factor;
-    this._y *= factor;
-    this._width *= factor;
-    this._height *= factor;
+  describePosition(): string {
+    return `(${formatNumber(this._x)},${formatNumber(this._y)})`;
   }
 }

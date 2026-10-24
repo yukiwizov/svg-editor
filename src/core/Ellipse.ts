@@ -8,10 +8,7 @@ export class Ellipse extends Shape {
 
   constructor(id: string, cx: number, cy: number, rx: number, ry: number, fill?: string) {
     super(id);
-    this._cx = cx;
-    this._cy = cy;
-    this._rx = rx;
-    this._ry = ry;
+    this._cx = cx; this._cy = cy; this._rx = rx; this._ry = ry;
     this.fill = fill;
   }
 
@@ -20,16 +17,12 @@ export class Ellipse extends Shape {
   get rx(): number { return this._rx; }
   get ry(): number { return this._ry; }
 
-  getTagName(): string {
-    return "ellipse";
-  }
+  getTagName(): string { return "ellipse"; }
 
   getAttributes(): Record<string, string> {
     const attrs: Record<string, string> = {
-      cx: formatNumber(this._cx),
-      cy: formatNumber(this._cy),
-      rx: formatNumber(this._rx),
-      ry: formatNumber(this._ry),
+      cx: formatNumber(this._cx), cy: formatNumber(this._cy),
+      rx: formatNumber(this._rx), ry: formatNumber(this._ry),
     };
     this.appendPresentation(attrs);
     return attrs;
@@ -43,15 +36,13 @@ export class Ellipse extends Shape {
     return this.trySetPresentation(name, value);
   }
 
-  moveBy(dx: number, dy: number): void {
-    this._cx += dx;
-    this._cy += dy;
+  moveBy(dx: number, dy: number): void { this._cx += dx; this._cy += dy; }
+  scaleFromOrigin(factor: number): void {
+    this._cx *= factor; this._cy *= factor;
+    this._rx *= factor; this._ry *= factor;
   }
 
-  scaleFromOrigin(factor: number): void {
-    this._cx *= factor;
-    this._cy *= factor;
-    this._rx *= factor;
-    this._ry *= factor;
+  describePosition(): string {
+    return `(${formatNumber(this._cx)},${formatNumber(this._cy)})`;
   }
 }

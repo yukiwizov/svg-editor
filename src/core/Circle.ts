@@ -7,9 +7,7 @@ export class Circle extends Shape {
 
   constructor(id: string, cx: number, cy: number, r: number, fill?: string) {
     super(id);
-    this._cx = cx;
-    this._cy = cy;
-    this._r = r;
+    this._cx = cx; this._cy = cy; this._r = r;
     this.fill = fill;
   }
 
@@ -17,15 +15,11 @@ export class Circle extends Shape {
   get cy(): number { return this._cy; }
   get r(): number { return this._r; }
 
-  getTagName(): string {
-    return "circle";
-  }
+  getTagName(): string { return "circle"; }
 
   getAttributes(): Record<string, string> {
     const attrs: Record<string, string> = {
-      cx: formatNumber(this._cx),
-      cy: formatNumber(this._cy),
-      r: formatNumber(this._r),
+      cx: formatNumber(this._cx), cy: formatNumber(this._cy), r: formatNumber(this._r),
     };
     this.appendPresentation(attrs);
     return attrs;
@@ -38,14 +32,12 @@ export class Circle extends Shape {
     return this.trySetPresentation(name, value);
   }
 
-  moveBy(dx: number, dy: number): void {
-    this._cx += dx;
-    this._cy += dy;
+  moveBy(dx: number, dy: number): void { this._cx += dx; this._cy += dy; }
+  scaleFromOrigin(factor: number): void {
+    this._cx *= factor; this._cy *= factor; this._r *= factor;
   }
 
-  scaleFromOrigin(factor: number): void {
-    this._cx *= factor;
-    this._cy *= factor;
-    this._r *= factor;
+  describePosition(): string {
+    return `(${formatNumber(this._cx)},${formatNumber(this._cy)})`;
   }
 }

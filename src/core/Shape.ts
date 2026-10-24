@@ -18,7 +18,7 @@ export abstract class Shape {
     return this.id;
   }
 
-  /** SVG 标签名：rect / circle / ellipse / line / text（Group 后续实现为 g）。 */
+  /** SVG 标签名：rect / circle / ellipse / line / text / g。 */
   abstract getTagName(): string;
 
   /** 该图形的属性集合（不含 id，不含子节点，不含文本内容）。 */
@@ -37,27 +37,37 @@ export abstract class Shape {
   /** 设置一个属性；调用方按返回值分支报错。 */
   abstract setAttribute(name: string, value: string): SetResult;
 
+  /**
+   * 移除一个属性。本阶段仅对 presentation 属性有效；
+   * 几何属性（如 x/y/cx）有默认值，不支持"移除"——调用被静默忽略。
+   * 用途：SetCommand 的 undo 需要恢复"属性原本不存在"的状态。
+   */
+  removeAttribute(name: string): void {
+    if (name === "fill") { this.fill = undefined; return; }
+    if (name === "stroke") { this.stroke = undefined; return; }
+    if (name === "stroke-width") { this.strokeWidth = undefined; return; }
+    // 其他属性：静默忽略
+  }
+
   /** 增量平移。 */
   abstract moveBy(dx: number, dy: number): void;
 
   /** 以原点为中心等比缩放 factor（> 0），作用于全部几何属性（位置与尺寸）。 */
   abstract scaleFromOrigin(factor: number): void;
 
+  /**
+   * 位置描述：用于命令反馈中的 "moved to (...)" 一类输出。
+   * 返回 null 表示该图形无位置概念（如 Group）。
+   * 格式示例：rect/circle/text → "(10,20)"，line → "(0,0)->(10,10)"。
+   */
+  abstract describePosition(): string | null;
+
   // ---- 子类共享：公共外观属性 ----
 
   protected trySetPresentation(name: string, value: string): SetResult {
-    if (name === "fill") {
-      this.fill = value;
-      return "ok";
-    }
-    if (name === "stroke") {
-      this.stroke = value;
-      return "ok";
-    }
-    if (name === "stroke-width") {
-      this.strokeWidth = value;
-      return "ok";
-    }
+    if (name === "fill") { this.fill = value; return "ok"; }
+    if (name === "stroke") { this.stroke = value; return "ok"; }
+    if (name === "stroke-width") { this.strokeWidth = value; return "ok"; }
     return "unknown";
   }
 
@@ -68,7 +78,7 @@ export abstract class Shape {
   }
 }
 
-/** 数字 → SVG 属性字符串。防御非有限值（构造/命令层应已拦截）。 */
+/** 数字 → SVG 属性字符串。 */
 export function formatNumber(n: number): string {
   if (!Number.isFinite(n)) {
     throw new Error(`non-finite number: ${n}`);
