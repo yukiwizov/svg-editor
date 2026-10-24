@@ -1,26 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { Repl, ReplIO } from "./Repl";
+import { Repl } from "./Repl";
+import { MemoryIO } from "./__test-utils__/MemoryIO";
 import { CommandRegistry } from "./CommandRegistry";
 import { registerBuiltinCommands } from "./builtin-commands";
 import { CommandDispatcher } from "./CommandDispatcher";
 import { EditorContext } from "../commands/EditorContext";
-
-/** 内存 IO：预置 lines，收集 writes。 */
-class MemoryIO implements ReplIO {
-  writes: string[] = [];
-
-  constructor(private readonly lines: string[]) {}
-
-  write(line: string): void {
-    this.writes.push(line);
-  }
-
-  async *read(): AsyncIterable<string> {
-    for (const line of this.lines) {
-      yield line;
-    }
-  }
-}
 
 function setup(lines: string[]): { io: MemoryIO; repl: Repl; ctx: EditorContext } {
   const registry = new CommandRegistry();
