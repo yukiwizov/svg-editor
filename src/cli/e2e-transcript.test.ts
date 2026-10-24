@@ -311,3 +311,47 @@ describe("端到端 — undo/redo 边界", () => {
     ]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// §4.2 剩余边界：save 不可写 + redo 被禁
+// ---------------------------------------------------------------------------
+
+describe("端到端 — save 不可写 + redo 被禁", () => {
+  it("save 到不可写路径报 cannot write file", async () => {
+    // Windows / Unix 都存在"不存在的父目录"场景
+    const badPath = path.join(tmpDir, "no-such-dir", "x.svg");
+    const out = await runTranscript([
+      "init 100 100",
+      "create rect r1 0 0 10 10",
+      `save ${badPath}`,
+      // 保存失败不应 disable history，undo 仍应可用
+      "undo",
+    ]);
+
+    expect(out).toEqual([
+      "canvas 100x100 created",
+      "rect#r1 created",
+      `error: cannot write file: ${badPath}`,
+      "rect#r1 creation undone",
+    ]);
+  });
+
+  it("save 成功后 redo 被禁", async () => {
+    const target = path.join(tmpDir, "redo-block.svg");
+    const out = await runTranscript([
+      "init 100 100",
+      "create rect r1 0 0 10 10",
+      "undo",
+      `save ${target}`,
+      "redo",
+    ]);
+
+    expect(out).toEqual([
+      "canvas 100x100 created",
+      "rect#r1 created",
+      "rect#r1 creation undone",
+      `saved to ${target} (0 elements)`,
+      "error: redo not allowed after io command",
+    ]);
+  });
+});
