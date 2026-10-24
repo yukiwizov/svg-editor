@@ -20,3 +20,11 @@ export interface Container {
   /** 返回子节点在 children 中的索引；不在返回 -1。 */
   indexOf(child: Shape): number;
 }
+
+/**
+ * 容器识别：duck typing（存在 getChildren 方法即为容器）。
+ * 不用 instanceof Group —— 未来 box 等插件类型只要实现 Container 接口即可。
+ */
+export function isContainer(shape: Shape): shape is Shape & Container {
+  return typeof (shape as Partial<Container>).getChildren === "function";
+}

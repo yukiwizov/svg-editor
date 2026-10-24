@@ -1,5 +1,7 @@
 import { Group } from "./Group";
 import { IdRegistry } from "./IdRegistry";
+import { Shape } from "./Shape";
+import { Container, isContainer } from "./Container";
 
 /**
  * 一份 SVG 文档的内存表示：画布尺寸 + 根容器 + id 空间 + 读入时的源路径。
@@ -38,5 +40,18 @@ export class Document {
     }
     this._width = width;
     this._height = height;
+  }
+
+  /** 文档中所有图形元素个数（不含根 svg），递归计数；用于 read/save 摘要。 */
+  countElements(): number {
+    let n = 0;
+    const walk = (c: Container) => {
+      for (const child of c.getChildren()) {
+        n++;
+        if (isContainer(child)) walk(child);
+      }
+    };
+    walk(this.root);
+    return n;
   }
 }

@@ -1,6 +1,6 @@
 import { Document } from "../core/Document";
 import { Shape } from "../core/Shape";
-import { Container } from "../core/Container";
+import { isContainer } from "../core/Container";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const INDENT = "  ";
@@ -57,14 +57,6 @@ export class SvgWriter {
     }
     lines.push(`${pad}<${tag}${attrStr}/>`);
   }
-}
-
-/**
- * 容器识别：duck typing（存在 getChildren 方法即为容器）。
- * 不用 instanceof Group —— 未来 box 等插件类型只要实现 Container 接口即可。
- */
-function isContainer(shape: Shape): shape is Shape & Container {
-  return typeof (shape as Partial<Container>).getChildren === "function";
 }
 
 function serializeAttributes(attrs: Record<string, string>): string {
