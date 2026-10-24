@@ -3,8 +3,19 @@ import { Shape } from "./Shape";
 /**
  * 容器接口。Group 实现它；未来 box 插件等复合类型也可实现它。
  * 依赖方向：core 内部，无外部依赖。
+ *
+ * 契约补充（P1-C8 完善）：
+ *   - 本阶段所有容器必然是 Shape 子类（每个图形元素都有唯一 id）
+ *   - 因此容器接口显式暴露 getId / getTagName，
+ *     使上层无需 "as Shape" 就能按 id / 标签名识别容器
  */
 export interface Container {
+  /** 容器自身的 id（唯一）。 */
+  getId(): string;
+
+  /** 容器自身的 SVG 标签名（g / 未来插件类型）。 */
+  getTagName(): string;
+
   /** 子节点的有序视图（z-order 从底到顶）。调用方不得修改返回数组。 */
   getChildren(): readonly Shape[];
 
