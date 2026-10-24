@@ -30,6 +30,14 @@ export class Group extends Shape implements Container {
     return null;
   }
 
+  describeForTree(): string {
+    return this.getPresentationStr();
+  }
+
+  describeForShow(): string[] {
+    return this.getPresentationShowLines();
+  }
+
   // ---- Container ----
 
   getChildren(): readonly Shape[] { return this.children; }

@@ -62,6 +62,12 @@ export abstract class Shape {
    */
   abstract describePosition(): string | null;
 
+  /** tree 命令中，节点行内的属性串（不含 id、不含 tag）。 */
+  abstract describeForTree(): string;
+
+  /** show 命令中，缩进 2 空格后的多行属性串。每行一个，Renderer 只加缩进。 */
+  abstract describeForShow(): string[];
+
   // ---- 子类共享：公共外观属性 ----
 
   protected trySetPresentation(name: string, value: string): SetResult {
@@ -75,6 +81,21 @@ export abstract class Shape {
     if (this.fill !== undefined) attrs.fill = this.fill;
     if (this.stroke !== undefined) attrs.stroke = this.stroke;
     if (this.strokeWidth !== undefined) attrs["stroke-width"] = this.strokeWidth;
+  }
+
+  /** 通用 presentation 追加串，如 " fill=red stroke=black"；都没有则返回 ""。 */
+  protected getPresentationStr(): string {
+    const parts: string[] = [];
+    if (this.fill !== undefined) parts.push(`fill=${this.fill}`);
+    if (this.stroke !== undefined) parts.push(`stroke=${this.stroke}`);
+    if (this.strokeWidth !== undefined) parts.push(`stroke-width=${this.strokeWidth}`);
+    return parts.join(" ");
+  }
+
+  /** show 用：presentation 行（当存在时）。 */
+  protected getPresentationShowLines(): string[] {
+    const line = this.getPresentationStr();
+    return line ? [line] : [];
   }
 }
 

@@ -41,4 +41,17 @@ export class TextShape extends Shape {
   describePosition(): string {
     return `(${formatNumber(this._x)},${formatNumber(this._y)})`;
   }
+
+  describeForTree(): string {
+    const safe = this._content.replace(/\r?\n/g, " ");
+    const geom = `(${formatNumber(this._x)},${formatNumber(this._y)}) "${safe}"`;
+    const p = this.getPresentationStr();
+    return p ? `${geom} ${p}` : geom;
+  }
+
+  describeForShow(): string[] {
+    const safe = this._content.replace(/\r?\n/g, " ");
+    const geom = `(${formatNumber(this._x)},${formatNumber(this._y)}) "${safe}"`;
+    return [geom, ...this.getPresentationShowLines()];
+  }
 }

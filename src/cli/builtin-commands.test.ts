@@ -12,13 +12,13 @@ function freshRegistry(): CommandRegistry {
 }
 
 describe("registerBuiltinCommands — 注册覆盖", () => {
-  it("16 条命令全部注册", () => {
+  it("19 条命令全部注册", () => {
     const reg = freshRegistry();
     const names = reg.names().sort();
     expect(names).toEqual([
       "addto", "back", "canvas", "create", "delete", "front",
-      "group", "init", "move", "read", "redo", "save",
-      "scale", "set", "undo", "ungroup",
+      "group", "help", "init", "move", "read", "redo",
+      "save", "scale", "set", "show", "tree", "undo", "ungroup",
     ]);
   });
 });

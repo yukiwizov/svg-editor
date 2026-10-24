@@ -50,4 +50,17 @@ export class Rect extends Shape {
   describePosition(): string {
     return `(${formatNumber(this._x)},${formatNumber(this._y)})`;
   }
+
+  describeForTree(): string {
+    const geom = `x=${formatNumber(this._x)} y=${formatNumber(this._y)} w=${formatNumber(this._width)} h=${formatNumber(this._height)}`;
+    const p = this.getPresentationStr();
+    return p ? `${geom} ${p}` : geom;
+  }
+
+  describeForShow(): string[] {
+    const lines = [
+      `x=${formatNumber(this._x)} y=${formatNumber(this._y)} width=${formatNumber(this._width)} height=${formatNumber(this._height)}`,
+    ];
+    return [...lines, ...this.getPresentationShowLines()];
+  }
 }

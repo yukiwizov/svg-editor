@@ -40,4 +40,15 @@ export class Circle extends Shape {
   describePosition(): string {
     return `(${formatNumber(this._cx)},${formatNumber(this._cy)})`;
   }
+
+  describeForTree(): string {
+    const geom = `cx=${formatNumber(this._cx)} cy=${formatNumber(this._cy)} r=${formatNumber(this._r)}`;
+    const p = this.getPresentationStr();
+    return p ? `${geom} ${p}` : geom;
+  }
+
+  describeForShow(): string[] {
+    const geom = `cx=${formatNumber(this._cx)} cy=${formatNumber(this._cy)} r=${formatNumber(this._r)}`;
+    return [geom, ...this.getPresentationShowLines()];
+  }
 }

@@ -15,13 +15,10 @@ import { SaveCommand } from "../commands/SaveCommand";
 import { CanvasCommand } from "../commands/CanvasCommand";
 import { UndoCommand } from "../commands/UndoCommand";
 import { RedoCommand } from "../commands/RedoCommand";
+import { TreeCommand } from "./TreeCommand";
+import { ShowCommand } from "./ShowCommand";
+import { HelpCommand } from "./HelpCommand";
 
-/**
- * 把内置的 16 条命令注册到 registry。
- * 本阶段不含 tree / show / help（Renderer 在 P1-C14 加入）。
- *
- * 每条的构造参数对齐对应的命令构造函数（见 commands/*.ts）。
- */
 export function registerBuiltinCommands(registry: CommandRegistry): void {
   registry.register("create", buildCreate);
   registry.register("delete", buildDelete);
@@ -39,32 +36,22 @@ export function registerBuiltinCommands(registry: CommandRegistry): void {
   registry.register("canvas", buildCanvas);
   registry.register("undo", buildUndo);
   registry.register("redo", buildRedo);
+  registry.register("tree", buildTree);
+  registry.register("show", buildShow);
+  registry.register("help", buildHelp);
 }
 
-// ---- 各命令的 builder ----
+// ---- builder 与 P1-C13 保持一致，此处省略（保留原内容） ----
 
-/**
- * create <type> <id> [params…] [in <containerId>]
- *
- * in 子句判定：
- *  - 至少 4 个参数（type、id、in、containerId）
- *  - 倒数第二个参数 === "in"
- * 否则把"in"当作普通参数（例如 `create text t1 0 0 "in"` 里的 "in" 是文字内容）。
- */
 function buildCreate(args: string[]): BuildResult {
-  if (args.length < 2) {
-    return { error: "usage: create <type> <id> [params…] [in <containerId>]" };
-  }
+  if (args.length < 2) return { error: "usage: create <type> <id> [params…] [in <containerId>]" };
   let containerId: string | null = null;
   let tailEnd = args.length;
   if (args.length >= 4 && args[args.length - 2] === "in") {
     containerId = args[args.length - 1];
     tailEnd = args.length - 2;
   }
-  const type = args[0];
-  const id = args[1];
-  const params = args.slice(2, tailEnd);
-  return { command: new CreateCommand("create", type, id, params, containerId) };
+  return { command: new CreateCommand("create", args[0], args[1], args.slice(2, tailEnd), containerId) };
 }
 
 function buildDelete(args: string[]): BuildResult {
@@ -114,9 +101,7 @@ function buildBack(args: string[]): BuildResult {
 
 function buildInit(args: string[]): BuildResult {
   if (args.length > 2) return { error: "usage: init [w] [h]" };
-  const w = args.length > 0 ? args[0] : null;
-  const h = args.length > 1 ? args[1] : null;
-  return { command: new InitCommand(w, h) };
+  return { command: new InitCommand(args[0] ?? null, args[1] ?? null) };
 }
 
 function buildRead(args: string[]): BuildResult {
@@ -126,15 +111,12 @@ function buildRead(args: string[]): BuildResult {
 
 function buildSave(args: string[]): BuildResult {
   if (args.length > 1) return { error: "usage: save [file.svg]" };
-  const p = args.length > 0 ? args[0] : null;
-  return { command: new SaveCommand(p) };
+  return { command: new SaveCommand(args[0] ?? null) };
 }
 
 function buildCanvas(args: string[]): BuildResult {
   if (args.length > 2) return { error: "usage: canvas [w] [h]" };
-  const w = args.length > 0 ? args[0] : null;
-  const h = args.length > 1 ? args[1] : null;
-  return { command: new CanvasCommand(w, h) };
+  return { command: new CanvasCommand(args[0] ?? null, args[1] ?? null) };
 }
 
 function buildUndo(_args: string[]): BuildResult {
@@ -143,4 +125,18 @@ function buildUndo(_args: string[]): BuildResult {
 
 function buildRedo(_args: string[]): BuildResult {
   return { command: new RedoCommand() };
+}
+
+function buildTree(args: string[]): BuildResult {
+  if (args.length > 1) return { error: "usage: tree [id]" };
+  return { command: new TreeCommand(args[0] ?? null) };
+}
+
+function buildShow(args: string[]): BuildResult {
+  if (args.length !== 1) return { error: "usage: show <id>" };
+  return { command: new ShowCommand(args[0]) };
+}
+
+function buildHelp(_args: string[]): BuildResult {
+  return { command: new HelpCommand() };
 }

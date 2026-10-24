@@ -1,0 +1,33 @@
+/**
+ * help 命令的内容。分 4 组，一行一条语法。
+ */
+export const HELP_LINES: readonly string[] = [
+  "Available commands:",
+  "",
+  "  document:",
+  "    init [w] [h]                       新建空画布（默认 800×600）",
+  "    read <file.svg>                    读入 SVG 文件为当前文档",
+  "    save [file.svg]                    保存当前文档",
+  "    canvas [w] [h]                     显示 / 修改画布尺寸",
+  "",
+  "  edit:",
+  "    create <type> <id> [params…] [in <containerId>]",
+  "    delete <id>",
+  "    move <id> <dx> <dy>",
+  "    scale <id> <factor>",
+  "    set <id> <attr> <value>",
+  "    group <newGid> <id1> <id2>…",
+  "    ungroup <gid>",
+  "    addto <gid> <id>",
+  "    front <id>",
+  "    back <id>",
+  "",
+  "  display:",
+  "    tree [id]",
+  "    show <id>",
+  "    help",
+  "",
+  "  history:",
+  "    undo",
+  "    redo",
+];

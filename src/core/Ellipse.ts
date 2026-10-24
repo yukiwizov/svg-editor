@@ -45,4 +45,15 @@ export class Ellipse extends Shape {
   describePosition(): string {
     return `(${formatNumber(this._cx)},${formatNumber(this._cy)})`;
   }
+
+  describeForTree(): string {
+    const geom = `cx=${formatNumber(this._cx)} cy=${formatNumber(this._cy)} rx=${formatNumber(this._rx)} ry=${formatNumber(this._ry)}`;
+    const p = this.getPresentationStr();
+    return p ? `${geom} ${p}` : geom;
+  }
+
+  describeForShow(): string[] {
+    const geom = `cx=${formatNumber(this._cx)} cy=${formatNumber(this._cy)} rx=${formatNumber(this._rx)} ry=${formatNumber(this._ry)}`;
+    return [geom, ...this.getPresentationShowLines()];
+  }
 }

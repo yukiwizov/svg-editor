@@ -48,4 +48,15 @@ export class Line extends Shape {
   describePosition(): string {
     return `(${formatNumber(this._x1)},${formatNumber(this._y1)})->(${formatNumber(this._x2)},${formatNumber(this._y2)})`;
   }
+
+  describeForTree(): string {
+    const geom = `(${formatNumber(this._x1)},${formatNumber(this._y1)}) -> (${formatNumber(this._x2)},${formatNumber(this._y2)})`;
+    const p = this.getPresentationStr();
+    return p ? `${geom} ${p}` : geom;
+  }
+
+  describeForShow(): string[] {
+    const geom = `(${formatNumber(this._x1)},${formatNumber(this._y1)}) -> (${formatNumber(this._x2)},${formatNumber(this._y2)})`;
+    return [geom, ...this.getPresentationShowLines()];
+  }
 }
