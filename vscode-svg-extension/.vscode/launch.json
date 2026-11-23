@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run SVG Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/vscode-svg-extension",
+        "${workspaceFolder}/vscode-svg-extension/examples"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/vscode-svg-extension/out/**/*.js"
+      ],
+      "preLaunchTask": "npm: compile - vscode-svg-extension"
+    }
+  ]
+}
