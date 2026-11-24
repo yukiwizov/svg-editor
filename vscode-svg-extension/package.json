@@ -14,7 +14,7 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "node ./out/test/runTest.js"
+    "test": "node --test ./out/test/parser.test.js"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

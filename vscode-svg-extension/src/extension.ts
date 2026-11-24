@@ -12,8 +12,7 @@ export function activate(context: vscode.ExtensionContext): void {
   watcher.onDidDelete((uri) => badgeProvider.refresh(uri));
 
   const selector: vscode.DocumentSelector = [
-    { language: "xml", scheme: "file", pattern: "**/*.svg" },
-    { language: "svg", scheme: "file", pattern: "**/*.svg" },
+    { scheme: "file", pattern: "**/*.svg" },
   ];
   const outlineDisposable = vscode.languages.registerDocumentSymbolProvider(
     selector,

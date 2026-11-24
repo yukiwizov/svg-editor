@@ -31,65 +31,98 @@ function extractIdAttr(rawAttrs) {
     const val = match?.[1] ?? match?.[2];
     return val && val.trim().length > 0 ? val.trim() : undefined;
 }
-/**
- * 解析 SVG 文本生成大纲树。
- * 若 XML 明显畸形/不完整或标签闭合不匹配，返回空数组 [] 以保证不崩溃。
- */
+function hasBalancedQuotes(str) {
+    let quote = null;
+    for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (quote) {
+            if (ch === quote) {
+                quote = null;
+            }
+        }
+        else if (ch === '"' || ch === "'") {
+            quote = ch;
+        }
+    }
+    return quote === null;
+}
 function parseSvgOutline(source) {
     try {
         const text = source.replace(/^\uFEFF/, "");
         if (!text.trim()) {
             return [];
         }
-        // 去除注释与 CDATA 以便扫描标签
         const sanitized = text
             .replace(/<!--[\s\S]*?-->/g, (m) => " ".repeat(m.length))
             .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, (m) => " ".repeat(m.length));
         const offsets = buildLineOffsets(text);
         const roots = [];
         const stack = [];
-        // 匹配 <?...?>、<!...>、</tag>、<tag ...>
-        const tokenRegex = /<\?[\s\S]*?\?>|<!(?!--)[\s\S]*?>|<\/\s*([A-Za-z_][\w:.-]*)\s*>|<([A-Za-z_][\w:.-]*)((?:\s+[^<>]*?)?)(\/?)>/g;
-        let match;
-        while ((match = tokenRegex.exec(sanitized)) !== null) {
-            const full = match[0];
-            const matchStart = match.index;
-            const matchEnd = matchStart + full.length;
-            // 跳过 XML 声明 / DOCTYPE
-            if (full.startsWith("<?") || full.startsWith("<!")) {
+        let i = 0;
+        while (i < sanitized.length) {
+            if (sanitized[i] !== "<") {
+                i++;
                 continue;
             }
+            if (sanitized.startsWith("<?", i)) {
+                const endDecl = sanitized.indexOf("?>", i + 2);
+                if (endDecl === -1)
+                    return [];
+                i = endDecl + 2;
+                continue;
+            }
+            if (sanitized.startsWith("<!", i)) {
+                const endBang = sanitized.indexOf(">", i + 2);
+                if (endBang === -1)
+                    return [];
+                i = endBang + 1;
+                continue;
+            }
+            const closeIdx = sanitized.indexOf(">", i + 1);
+            if (closeIdx === -1) {
+                return [];
+            }
+            const inner = sanitized.slice(i + 1, closeIdx);
+            if (!hasBalancedQuotes(inner)) {
+                return [];
+            }
+            const trimmedInner = inner.trim();
+            if (!trimmedInner) {
+                return [];
+            }
             // 闭合标签 </tag>
-            if (match[1]) {
-                const closeTag = match[1];
+            if (trimmedInner.startsWith("/")) {
+                const closeTag = trimmedInner.slice(1).trim();
+                if (!/^[A-Za-z_][\w:.-]*$/.test(closeTag)) {
+                    return [];
+                }
                 if (stack.length === 0) {
                     return [];
                 }
                 const top = stack[stack.length - 1];
                 if (top.node.tagName !== closeTag) {
-                    // 标签错位/未闭合（编辑过程中的不完整 XML）
                     return [];
                 }
-                const endPos = offsetToPos(offsets, matchEnd);
+                const endPos = offsetToPos(offsets, closeIdx + 1);
                 top.node.endLine = endPos.line;
                 top.node.endChar = endPos.character;
                 stack.pop();
+                i = closeIdx + 1;
                 continue;
             }
-            // 开始标签或自闭合标签
-            const tagName = match[2];
-            const rawAttrs = match[3] ?? "";
-            const selfClosing = match[5] === "/";
-            // 检查属性引号是否成对闭合，防止半截属性导致误判
-            const singleQuotes = (rawAttrs.match(/'/g) ?? []).length;
-            const doubleQuotes = (rawAttrs.match(/"/g) ?? []).length;
-            if (singleQuotes % 2 !== 0 || doubleQuotes % 2 !== 0) {
+            // 开始或自闭合标签 <tag ...> / <tag ... />
+            const selfClosing = trimmedInner.endsWith("/");
+            const body = selfClosing ? trimmedInner.slice(0, -1).trimEnd() : trimmedInner;
+            const tagMatch = /^([A-Za-z_][\w:.-]*)([\s\S]*)$/.exec(body);
+            if (!tagMatch) {
                 return [];
             }
+            const tagName = tagMatch[1];
+            const rawAttrs = tagMatch[2] ?? "";
             const id = extractIdAttr(rawAttrs);
             const label = id ? `${tagName}#${id}` : tagName;
-            const startPos = offsetToPos(offsets, matchStart);
-            const endPos = offsetToPos(offsets, matchEnd);
+            const startPos = offsetToPos(offsets, i);
+            const endPos = offsetToPos(offsets, closeIdx + 1);
             const node = {
                 tagName,
                 id,
@@ -107,14 +140,13 @@ function parseSvgOutline(source) {
                 roots.push(node);
             }
             if (!selfClosing) {
-                stack.push({ node, startOffset: matchStart });
+                stack.push({ node });
             }
+            i = closeIdx + 1;
         }
-        // 存在未闭合标签或根元素缺失/多个未闭合块，视为不完整 XML
         if (stack.length > 0 || roots.length === 0) {
             return [];
         }
-        // 根元素应为 svg（若正在输入刚改完根标签导致不是 svg，安全返回 [] 或根节点）
         if (roots[0].tagName !== "svg") {
             return [];
         }

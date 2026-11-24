@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
   <g id="flowchart">
+    <circle id="c1" cx="50" cy="50" r="10" />
     <rect id="start" x="20" y="20" width="120" height="60" fill="#ffffff" />
     <g id="nested">
       <text x="30" y="50">Hello SVG</text>

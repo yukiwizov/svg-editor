@@ -46,8 +46,7 @@ function activate(context) {
     watcher.onDidChange((uri) => badgeProvider.refresh(uri));
     watcher.onDidDelete((uri) => badgeProvider.refresh(uri));
     const selector = [
-        { language: "xml", scheme: "file", pattern: "**/*.svg" },
-        { language: "svg", scheme: "file", pattern: "**/*.svg" },
+        { scheme: "file", pattern: "**/*.svg" },
     ];
     const outlineDisposable = vscode.languages.registerDocumentSymbolProvider(selector, new svgOutlineProvider_1.SvgDocumentSymbolProvider());
     badgeProvider.refresh(undefined);
