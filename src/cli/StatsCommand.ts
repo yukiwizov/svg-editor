@@ -16,8 +16,8 @@ export class StatsCommand implements Command {
     let containers = 0;
 
     const visit = (shape: Shape): void => {
-      if (isContainer(shape)) {
-        if (shape.getTagName() === "g" || shape.getTagName() === "box") containers++;
+      if (isContainer(shape) && (shape.getTagName() === "g" || shape.getTagName() === "box")) {
+        containers++;
         for (const child of shape.getChildren()) visit(child);
         return;
       }

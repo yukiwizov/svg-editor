@@ -40,12 +40,17 @@ describe("box composite plugin", () => {
     expect((locateShape(ctx.document!, "b1")!.shape as BoxShape).rect.getAttribute("fill")).toBe("red");
     fill.undo(ctx);
     expect((locateShape(ctx.document!, "b1")!.shape as BoxShape).rect.getAttribute("fill")).toBe("blue");
+    fill.execute(ctx);
+    expect((locateShape(ctx.document!, "b1")!.shape as BoxShape).rect.getAttribute("fill")).toBe("red");
+    fill.undo(ctx);
 
     const label = new SetCommand("set", "b1", "label", "after");
     expect(label.execute(ctx).error).toBeUndefined();
     expect((locateShape(ctx.document!, "b1")!.shape as BoxShape).label.content).toBe("after");
     label.undo(ctx);
     expect((locateShape(ctx.document!, "b1")!.shape as BoxShape).label.content).toBe("before");
+    label.execute(ctx);
+    expect((locateShape(ctx.document!, "b1")!.shape as BoxShape).label.content).toBe("after");
   });
 
   it("rolls back a handler that mutates and then throws", () => {
@@ -78,6 +83,9 @@ describe("box composite plugin", () => {
     expect(second.label.content).toBe("caption");
     expect(second.rect.getAttribute("fill")).toBe("green");
     expect(() => reader.read(`<svg><g id="b1" data-kind="box"><rect id="b1-rect"/></g></svg>`)).toThrow(/exactly rect followed by text/);
+    const fallback = new SvgReader(createDefaultFactory()).read(xml).document.root.getChildren()[0];
+    expect(fallback.getTagName()).toBe("g");
+    expect(fallback).not.toBeInstanceOf(BoxShape);
   });
 
   it("cannot ungroup the composite", () => {
