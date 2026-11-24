@@ -1,0 +1,85 @@
+@startuml
+title SVG Editor — Phase 1 to Phase 2 architecture
+
+left to right direction
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+package "Phase 1 — CLI layered architecture" as P1 {
+  [index.ts\nComposition root] as p1entry
+  package "cli" as p1cli {
+    [Repl / Tokenizer]
+    [CommandRegistry]
+    [CommandDispatcher]
+    [Renderer]
+  }
+  package "commands" as p1commands {
+    [Edit commands]
+    [CommandHistory]
+  }
+  package "io" as p1io {
+    [SvgReader]
+    [SvgWriter]
+  }
+  package "core" as p1core {
+    [Document / Shape]
+    [ShapeFactory]
+  }
+  p1entry --> p1cli
+  p1cli --> p1commands
+  p1cli --> p1io
+  p1commands --> p1core
+  p1io --> p1core
+  p1cli --> p1core
+}
+
+package "Phase 2 — Pluginized CLI" as P2 {
+  [index.ts\nComposition root] as p2entry
+  [PluginHost\nStaging + manifest validation] as host
+  [PluginLoader\nConfig assembly B] as loader
+  [assembleA.ts\nCode assembly A] as assembleA
+  package "Kernel contracts" as contracts {
+    [ShapeProvider]
+    [Command]
+    [TreeDecorator]
+    [AttributeHandler]
+  }
+  package "src/plugins — CLI plugins" as plugins {
+    [Builtin shapes]
+    [Box]
+    [stats / dir]
+    [modified-star / box label]
+  }
+  package "CLI runtime" as cli2 {
+    [CommandRegistry]
+    [Renderer]
+    [SetCommand]
+    [ShapeFactory]
+  }
+  p2entry --> host
+  p2entry --> loader
+  p2entry --> assembleA
+  loader --> host
+  assembleA --> host
+  plugins ..> contracts : implement
+  host --> contracts : register
+  contracts --> cli2 : invoked by
+}
+
+package "Independent VS Code extension" as VSC {
+  [vscode-extension/src/extension.ts]
+  [SvgDecorationProvider]
+  [DocumentSymbolProvider]
+  [parseSvgOutline]
+  [VS Code Explorer / Outline APIs]
+  [SvgDecorationProvider] --> [VS Code Explorer / Outline APIs]
+  [DocumentSymbolProvider] --> [VS Code Explorer / Outline APIs]
+  [vscode-extension/src/extension.ts] --> [SvgDecorationProvider]
+  [vscode-extension/src/extension.ts] --> [parseSvgOutline]
+  [parseSvgOutline] --> [DocumentSymbolProvider]
+}
+
+note bottom of VSC
+  No runtime dependency on CLI kernel or src/plugins.
+end note
+@enduml
