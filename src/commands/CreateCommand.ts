@@ -67,7 +67,10 @@ export class CreateCommand implements EditCommand {
       this.shape = result;
     }
 
-    doc.ids.reserve(this.id);
+    const shapeIds = collectIds(this.shape);
+    const duplicate = shapeIds.find((id, index) => shapeIds.indexOf(id) !== index || (id !== this.id && doc.ids.has(id)));
+    if (duplicate) return err(`id already exists: ${duplicate}`);
+    for (const id of shapeIds) doc.ids.reserve(id);
     parent.add(this.shape);
     this.parent = parent;
     this.parentTag = parentTag;
@@ -86,7 +89,12 @@ export class CreateCommand implements EditCommand {
       return err(`internal: shape ${this.id} not found in parent during undo`);
     }
     this.parent.removeAt(index);
-    ctx.document.ids.release(this.id);
+    for (const id of collectIds(this.shape)) ctx.document.ids.release(id);
     return ok(`${this.type}#${this.id} creation undone`);
   }
+}
+function collectIds(shape: Shape): string[] {
+  const ids = [shape.getId()];
+  if (isContainer(shape)) for (const child of shape.getChildren()) ids.push(...collectIds(child));
+  return ids;
 }

@@ -4,5 +4,5 @@ import { Shape } from "./Shape";
 export interface ShapeProvider {
   readonly name: string;
   create(id: string, params: string[]): Shape | { error: string };
-  createFromDom?(id: string, attributes: Record<string, string>, textContent: string | null): Shape;
+  createFromDom?(id: string, attributes: Record<string, string>, textContent: string | null, children?: Shape[]): Shape;
 }

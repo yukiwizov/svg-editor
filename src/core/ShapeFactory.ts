@@ -17,6 +17,7 @@ type DomCreator = (
   id: string,
   attributes: Record<string, string>,
   textContent: string | null,
+  children?: Shape[],
 ) => Shape;
 
 /**
@@ -42,7 +43,7 @@ export class ShapeFactory {
     if (this.isRegistered(provider.name)) throw new Error(`duplicate shape provider: ${provider.name}`);
     this.register(provider.name, (id, params) => provider.create(id, params), (id, attrs, text) => {
       if (!provider.createFromDom) throw new Error(`shape provider ${provider.name} cannot import SVG`);
-      return provider.createFromDom(id, attrs, text);
+      return provider.createFromDom(id, attrs, text, children);
     });
   }
 
@@ -74,10 +75,11 @@ export class ShapeFactory {
     id: string,
     attributes: Record<string, string>,
     textContent: string | null,
+    children?: Shape[],
   ): Shape | undefined {
     const domCreator = this.domCreators.get(tagName);
     if (!domCreator) return undefined;
-    return domCreator(id, attributes, textContent);
+    return domCreator(id, attributes, textContent, children);
   }
 
   // ---- 内置注册 ----

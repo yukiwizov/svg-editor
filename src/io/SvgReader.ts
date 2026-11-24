@@ -51,7 +51,7 @@ export class SvgReader {
 
     for (const child of elementChildren(root)) {
       const shape = this.buildShape(child, assigner, warnings);
-      if (shape) doc.root.add(shape);
+      if (shape) { doc.root.add(shape); reserveShapeIds(doc, shape); }
     }
 
     return { document: doc, warnings };
@@ -96,7 +96,10 @@ export class SvgReader {
     const textContent = tag === "text" ? (elem.textContent ?? "") : null;
 
     const providerTag = tag === "g" && attrs["data-kind"] === "box" && this.factory.isRegistered("box") ? "box" : tag;
-    const shape = this.factory.createFromDom(providerTag, id, attrs, textContent);
+    const structuralChildren = providerTag === "box"
+      ? Array.from(elementChildren(elem), child => this.buildShape(child, assigner, warnings)).filter((child): child is import("../core/Shape").Shape => child !== null)
+      : undefined;
+    const shape = this.factory.createFromDom(providerTag, id, attrs, textContent, structuralChildren);
     if (!shape) {
       warnings.push(`skipped unknown element <${tag} id="${id}">`);
       return null;
@@ -109,7 +112,7 @@ export class SvgReader {
     }
 
     // 5) 容器递归
-    if (isContainer(shape)) {
+    if (isContainer(shape) && providerTag !== "box") {
       for (const child of elementChildren(elem)) {
         const childShape = this.buildShape(child, assigner, warnings);
         if (childShape) shape.add(childShape);
@@ -118,6 +121,11 @@ export class SvgReader {
 
     return shape;
   }
+}
+
+function reserveShapeIds(doc: Document, shape: import("../core/Shape").Shape): void {
+  if (!doc.ids.reserve(shape.getId())) throw new Error(`duplicate id: ${shape.getId()}`);
+  if (isContainer(shape)) for (const child of shape.getChildren()) reserveShapeIds(doc, child);
 }
 
 // ---- 工具函数 ----
