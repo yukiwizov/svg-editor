@@ -1,6 +1,24 @@
 {
   "plugins": [
-    { "module": "./src/plugins/box/plugin", "enabled": true, "options": {} },
-    { "module": "./src/plugins/tree-star/plugin", "enabled": true, "options": {} }
+    {
+      "module": "./src/plugins/box/plugin",
+      "enabled": true,
+      "options": {}
+    },
+    {
+      "module": "./src/plugins/tree-star/plugin",
+      "enabled": true,
+      "options": {}
+    },
+    {
+      "module": "./src/plugins/commands/stats",
+      "enabled": true,
+      "options": {}
+    },
+    {
+      "module": "./src/plugins/commands/dir",
+      "enabled": true,
+      "options": {}
+    }
   ]
 }

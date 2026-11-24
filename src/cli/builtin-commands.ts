@@ -18,8 +18,6 @@ import { RedoCommand } from "../commands/RedoCommand";
 import { TreeCommand } from "./TreeCommand";
 import { ShowCommand } from "./ShowCommand";
 import { HelpCommand } from "./HelpCommand";
-import { StatsCommand } from "./StatsCommand";
-import { DirCommand } from "./DirCommand";
 
 export function registerBuiltinCommands(registry: CommandRegistry): void {
   registry.register("create", buildCreate);
@@ -40,9 +38,7 @@ export function registerBuiltinCommands(registry: CommandRegistry): void {
   registry.register("redo", buildRedo);
   registry.register("tree", buildTree);
   registry.register("show", buildShow);
-  registry.register("help", buildHelp);
-  registry.register("stats", args => args.length ? { error: "usage: stats" } : { command: new StatsCommand() });
-  registry.register("dir", args => args.length ? { error: "usage: dir" } : { command: new DirCommand() });
+  registry.register("help", buildHelp);undefined
 }
 
 // ---- builder 与 P1-C13 保持一致，此处省略（保留原内容） ----
