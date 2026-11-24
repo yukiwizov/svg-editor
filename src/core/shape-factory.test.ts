@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ShapeFactory } from "./ShapeFactory";
+import { createDefaultFactory } from "../__test-utils__/testContext";
 import { Rect } from "./Rect";
 import { Circle } from "./Circle";
 import { Ellipse } from "./Ellipse";
@@ -25,7 +25,7 @@ function createErr(f: ShapeFactory, type: string, params: string[]): string {
 }
 
 describe("ShapeFactory — 内置类型", () => {
-  const f = new ShapeFactory();
+  const f = createDefaultFactory();
 
   it("rect", () => {
     const r = createOk(f, "rect", "r1", ["10", "20", "100", "50", "#eee"]);
@@ -48,7 +48,7 @@ describe("ShapeFactory — 内置类型", () => {
 });
 
 describe("ShapeFactory — 错误分支", () => {
-  const f = new ShapeFactory();
+  const f = createDefaultFactory();
 
   it("未知类型", () => {
     expect(createErr(f, "hexagon", ["1", "2"])).toBe(
@@ -78,7 +78,7 @@ describe("ShapeFactory — 错误分支", () => {
 });
 
 describe("ShapeFactory — createFromDom（宽容读取）", () => {
-  const f = new ShapeFactory();
+  const f = createDefaultFactory();
 
   it("rect 缺属性用默认 0", () => {
     const s = f.createFromDom("rect", "r1", { fill: "red" }, null);

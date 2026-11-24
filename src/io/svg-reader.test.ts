@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { SvgReader } from "./SvgReader";
-import { ShapeFactory } from "../core/ShapeFactory";
+import { createDefaultFactory } from "../__test-utils__/testContext";
 import { Group } from "../core/Group";
 
-const reader = () => new SvgReader(new ShapeFactory());
+const reader = () => new SvgReader(createDefaultFactory());
 
 const OTHER_SVG = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">

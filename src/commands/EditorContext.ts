@@ -53,9 +53,9 @@ export class EditorContext {
     return baseline === undefined || baseline !== visit(shape);
   }
 
-  constructor() {
+  constructor(factory: ShapeFactory = new ShapeFactory()) {
     this.document = null;
-    this.factory = new ShapeFactory();
+    this.factory = factory;
     this.reader = new SvgReader(this.factory);
     this.writer = new SvgWriter();
     this.history = new CommandHistory();
