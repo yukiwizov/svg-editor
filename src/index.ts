@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import * as readline from "node:readline";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { CommandRegistry } from "./cli/CommandRegistry";
 import { registerBuiltinCommands } from "./cli/builtin-commands";
 import { CommandDispatcher } from "./cli/CommandDispatcher";
 import { Repl, ReplIO } from "./cli/Repl";
 import { EditorContext } from "./commands/EditorContext";
+import { PluginHost, PluginManifest } from "./plugins/PluginHost";
 
 /**
  * 用 node:readline 实现 ReplIO。
@@ -32,11 +35,46 @@ function makeReadlineIO(): ReplIO {
   };
 }
 
+async function loadPlugins(host: PluginHost): Promise<void> {
+  const configPath = path.resolve(process.cwd(), "plugins.config.json");
+  if (!fs.existsSync(configPath)) return;
+  let config: unknown;
+  try { config = JSON.parse(fs.readFileSync(configPath, "utf8")); } catch { console.error("error: invalid plugin config"); return; }
+  if (!config || typeof config !== "object" || !Array.isArray((config as {plugins?: unknown}).plugins)) {
+    console.error("error: invalid plugin config"); return;
+  }
+  for (const entry of (config as {plugins: unknown[]}).plugins) {
+    if (!entry || typeof entry !== "object" || typeof (entry as {module?: unknown}).module !== "string" || ((entry as {enabled?: unknown}).enabled !== undefined && typeof (entry as {enabled?: unknown}).enabled !== "boolean")) {
+      console.error("error: invalid plugin config"); continue;
+    }
+    const item = entry as {module: string; enabled?: boolean; options?: Record<string, unknown>};
+    if (item.enabled === false) continue;
+    let loaded: unknown;
+    try {
+      const resolved = item.module.startsWith(".") ? path.resolve(path.dirname(configPath), item.module) : item.module;
+      loaded = require(resolved);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`error: plugin failed to activate: ${item.module} (${message})`); continue;
+    }
+    const plugin = (loaded as {default?: PluginManifest})?.default;
+    if (!plugin) { console.error(`error: plugin has no default export: ${item.module}`); continue; }
+    try { plugin.activate(host, item.options ?? {}); }
+    catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`error: plugin failed to activate: ${plugin.name} (${message})`);
+    }
+  }
+}
+
 async function main(): Promise<void> {
   const registry = new CommandRegistry();
   registerBuiltinCommands(registry);
   const dispatcher = new CommandDispatcher(registry);
   const ctx = new EditorContext();
+  const host = new PluginHost(ctx.factory, registry);
+  await loadPlugins(host);
+  ctx.attributeHandlers.push(...host.attributes);
   const repl = new Repl(makeReadlineIO(), dispatcher, ctx);
   await repl.run();
 }
