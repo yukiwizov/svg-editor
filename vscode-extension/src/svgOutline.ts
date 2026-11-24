@@ -51,7 +51,6 @@ export function parseSvgOutline(document: vscode.TextDocument): vscode.DocumentS
       const top = stack.pop();
       if (!top || top.name !== name) return [];
       top.symbol.range = new vscode.Range(top.start, tagEnd);
-      top.symbol.selectionRange = new vscode.Range(top.start, tagEnd);
     } else {
       const id = readAttribute(body, "id");
       const label = id ? name + "#" + id : name;

@@ -31,7 +31,7 @@ export class PluginHost {
     if (!plugin || typeof plugin.name !== "string" || !plugin.name.trim() || typeof plugin.activate !== "function") {
       throw new Error("invalid plugin manifest");
     }
-    const declared = normalize(declaredOverride ?? plugin.contributes);
+    const declared = normalize(declaredOverride !== undefined ? declaredOverride : plugin.contributes);
     const staged = {
       shapes: [] as ShapeProvider[],
       commands: [] as Array<{ name: string; builder: CommandBuilder }>,

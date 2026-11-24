@@ -20,6 +20,12 @@ describe("PluginHost activation transactions", () => {
     expect(h.commands.has("actual")).toBe(false);
   });
 
+  it("rejects malformed package contribution metadata instead of falling back to code metadata", () => {
+    const h = host();
+    expect(() => h.activate({ name: "invalid-package", contributes: {}, activate() {} }, {}, null as never))
+      .toThrow("invalid plugin manifest");
+  });
+
   it("rejects duplicate registrations with stable category/name", () => {
     const h = host();
     h.commands.register("existing", () => ({ error: "unused" }));
