@@ -26,6 +26,8 @@ export const HELP_LINES: readonly string[] = [
   "    tree [id]",
   "    show <id>",
   "    help",
+  "    stats",
+  "    dir",
   "",
   "  history:",
   "    undo",
