@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CreateCommand } from "./CreateCommand";
 import { EditorContext } from "./EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 import { Document } from "../core/Document";
 import { Group } from "../core/Group";
 import { locateShape } from "./ShapeLocator";
 import { Rect } from "../core/Rect";
 
 function setup(): EditorContext {
-  const ctx = new EditorContext();
+  const ctx = createEditorContext();
   ctx.document = new Document(800, 600);
   return ctx;
 }
@@ -77,7 +78,7 @@ describe("CreateCommand — 错误分支", () => {
   });
 
   it("无文档", () => {
-    const empty = new EditorContext();
+    const empty = createEditorContext();
     const r = new CreateCommand("create", "rect", "r1", ["0", "0", "1", "1"], null).execute(empty);
     expect(r.error).toBe("no document. use 'init' or 'read' first");
   });

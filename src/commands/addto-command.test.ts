@@ -1,13 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { AddToCommand } from "./AddToCommand";
 import { EditorContext } from "./EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 import { Document } from "../core/Document";
 import { Group } from "../core/Group";
 import { Rect } from "../core/Rect";
 import { locateShape } from "./ShapeLocator";
 
 function setup(): EditorContext {
-  const ctx = new EditorContext();
+  const ctx = createEditorContext();
   ctx.document = new Document(800, 600);
   return ctx;
 }
@@ -100,7 +101,7 @@ describe("AddToCommand — 错误分支", () => {
   });
 
   it("无文档", () => {
-    expect(new AddToCommand("addto", "g1", "r1").execute(new EditorContext()).error).toBe(
+    expect(new AddToCommand("addto", "g1", "r1").execute(createEditorContext()).error).toBe(
       "no document. use 'init' or 'read' first",
     );
   });

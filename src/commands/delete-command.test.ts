@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { DeleteCommand } from "./DeleteCommand";
 import { EditorContext } from "./EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 import { Document } from "../core/Document";
 import { Group } from "../core/Group";
 import { Rect } from "../core/Rect";
 import { locateShape } from "./ShapeLocator";
 
 function setup(): EditorContext {
-  const ctx = new EditorContext();
+  const ctx = createEditorContext();
   ctx.document = new Document(800, 600);
   return ctx;
 }
@@ -53,7 +54,7 @@ describe("DeleteCommand — 错误分支", () => {
   });
 
   it("无文档", () => {
-    const empty = new EditorContext();
+    const empty = createEditorContext();
     const r = new DeleteCommand("delete", "r1").execute(empty);
     expect(r.error).toBe("no document. use 'init' or 'read' first");
   });

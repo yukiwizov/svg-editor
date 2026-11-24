@@ -1,13 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { UngroupCommand } from "./UngroupCommand";
 import { EditorContext } from "./EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 import { Document } from "../core/Document";
 import { Group } from "../core/Group";
 import { Rect } from "../core/Rect";
 import { locateShape } from "./ShapeLocator";
 
 function setup(): EditorContext {
-  const ctx = new EditorContext();
+  const ctx = createEditorContext();
   ctx.document = new Document(800, 600);
   return ctx;
 }
@@ -87,7 +88,7 @@ describe("UngroupCommand — 错误分支", () => {
   });
 
   it("无文档", () => {
-    expect(new UngroupCommand("ungroup", "g1").execute(new EditorContext()).error).toBe(
+    expect(new UngroupCommand("ungroup", "g1").execute(createEditorContext()).error).toBe(
       "no document. use 'init' or 'read' first",
     );
   });

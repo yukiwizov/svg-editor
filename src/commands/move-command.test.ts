@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { MoveCommand } from "./MoveCommand";
 import { EditorContext } from "./EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 import { Document } from "../core/Document";
 import { Circle } from "../core/Circle";
 import { Rect } from "../core/Rect";
@@ -9,7 +10,7 @@ import { Line } from "../core/Line";
 import { Shape } from "../core/Shape";
 
 function setupWith(shapes: Array<{ shape: Shape; id: string }>): EditorContext {
-  const ctx = new EditorContext();
+  const ctx = createEditorContext();
   const doc = new Document(800, 600);
   for (const { shape, id } of shapes) {
     doc.root.add(shape);
@@ -63,7 +64,7 @@ describe("MoveCommand — 成功路径", () => {
 
 describe("MoveCommand — 错误分支", () => {
   it("no such shape", () => {
-    const ctx = new Document(800, 600) && new EditorContext();
+    const ctx = new Document(800, 600) && createEditorContext();
     ctx.document = new Document(800, 600);
     expect(new MoveCommand("move", "nope", "0", "0").execute(ctx).error).toBe(
       "no such shape: nope",
@@ -85,7 +86,7 @@ describe("MoveCommand — 错误分支", () => {
   });
 
   it("无文档", () => {
-    const empty = new EditorContext();
+    const empty = createEditorContext();
     expect(new MoveCommand("move", "c1", "0", "0").execute(empty).error).toBe(
       "no document. use 'init' or 'read' first",
     );

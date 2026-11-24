@@ -8,6 +8,7 @@ import { CommandRegistry } from "./CommandRegistry";
 import { registerBuiltinCommands } from "./builtin-commands";
 import { CommandDispatcher } from "./CommandDispatcher";
 import { EditorContext } from "../commands/EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 
 const BANNER = "svg-editor 0.1 — type 'help' for commands";
 
@@ -16,7 +17,7 @@ async function runTranscript(lines: string[]): Promise<string[]> {
   const registry = new CommandRegistry();
   registerBuiltinCommands(registry);
   const dispatcher = new CommandDispatcher(registry);
-  const ctx = new EditorContext();
+  const ctx = createEditorContext();
   const io = new MemoryIO(lines);
   const repl = new Repl(io, dispatcher, ctx);
   await repl.run();

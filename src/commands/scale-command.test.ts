@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { ScaleCommand } from "./ScaleCommand";
 import { EditorContext } from "./EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 import { Document } from "../core/Document";
 import { Circle } from "../core/Circle";
 import { Rect } from "../core/Rect";
@@ -8,7 +9,7 @@ import { Group } from "../core/Group";
 import { Shape } from "../core/Shape";
 
 function setupWith(shapes: Array<{ shape: Shape; id: string }>): EditorContext {
-  const ctx = new EditorContext();
+  const ctx = createEditorContext();
   const doc = new Document(800, 600);
   for (const { shape, id } of shapes) {
     doc.root.add(shape);
@@ -74,7 +75,7 @@ describe("ScaleCommand — 错误分支", () => {
   });
 
   it("无文档", () => {
-    expect(new ScaleCommand("scale", "c1", "2").execute(new EditorContext()).error).toBe(
+    expect(new ScaleCommand("scale", "c1", "2").execute(createEditorContext()).error).toBe(
       "no document. use 'init' or 'read' first",
     );
   });

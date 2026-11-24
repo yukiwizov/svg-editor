@@ -7,6 +7,7 @@ import { ReadCommand } from "./ReadCommand";
 import { SaveCommand } from "./SaveCommand";
 import { CanvasCommand } from "./CanvasCommand";
 import { EditorContext } from "./EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 import { Rect } from "../core/Rect";
 import { Group } from "../core/Group";
 import { locateShape } from "./ShapeLocator";
@@ -31,7 +32,7 @@ function writeTmp(name: string, content: string): string {
 
 describe("InitCommand", () => {
   it("默认 800×600", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     const r = new InitCommand(null, null).execute(ctx);
     expect(r.error).toBeUndefined();
     expect(r.lines).toEqual(["canvas 800x600 created"]);
@@ -40,26 +41,26 @@ describe("InitCommand", () => {
   });
 
   it("自定义尺寸", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     const r = new InitCommand("400", "200").execute(ctx);
     expect(r.lines).toEqual(["canvas 400x200 created"]);
   });
 
   it("reset 后 undo 被锁", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new InitCommand(null, null).execute(ctx);
     expect(ctx.history.undo(ctx).error).toBe("undo not allowed after io command");
   });
 
   it("非法宽度", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     expect(new InitCommand("abc", null).execute(ctx).error).toBe(
       "invalid value for canvas width: abc",
     );
   });
 
   it("非正尺寸", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     expect(new InitCommand("0", null).execute(ctx).error).toBe(
       "canvas size must be positive",
     );
@@ -77,7 +78,7 @@ describe("ReadCommand", () => {
   <circle id="c1" cx="50" cy="50" r="10"/>
 </svg>`;
     const file = writeTmp("demo.svg", xml);
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     const r = new ReadCommand(file).execute(ctx);
     expect(r.error).toBeUndefined();
     expect(r.lines).toEqual([
@@ -94,27 +95,27 @@ describe("ReadCommand", () => {
       <rect id="r1" x="0" y="0" width="10" height="10"/>
     </svg>`;
     const file = writeTmp("clean.svg", xml);
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     const r = new ReadCommand(file).execute(ctx);
     expect(r.lines).toEqual([`read ${file} (1 elements)`]);
   });
 
   it("文件不存在", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     const r = new ReadCommand(path.join(tmpDir, "nope.svg")).execute(ctx);
     expect(r.error).toContain("cannot read file:");
   });
 
   it("文件存在但非 SVG", () => {
     const file = writeTmp("bad.svg", "<not-svg/>");
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     const r = new ReadCommand(file).execute(ctx);
     expect(r.error).toContain("cannot read file:");
   });
 
   it("reset 后 undo 被锁", () => {
     const file = writeTmp("empty.svg", '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>');
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new ReadCommand(file).execute(ctx);
     expect(ctx.history.undo(ctx).error).toBe("undo not allowed after io command");
   });
@@ -122,7 +123,7 @@ describe("ReadCommand", () => {
 
 describe("SaveCommand", () => {
   it("保存到指定路径，更新 sourcePath，disable 后 undo 被锁", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new InitCommand("400", "200").execute(ctx);
     ctx.document!.root.add(new Rect("r1", 0, 0, 10, 10));
     ctx.document!.ids.reserve("r1");
@@ -142,7 +143,7 @@ describe("SaveCommand", () => {
 
   it("无参 save 使用 sourcePath", () => {
     const target = path.join(tmpDir, "out2.svg");
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new InitCommand(null, null).execute(ctx);
     new SaveCommand(target).execute(ctx);
     // 再 save 一次（无参）应该写回同一路径
@@ -152,7 +153,7 @@ describe("SaveCommand", () => {
   });
 
   it("无参且无 sourcePath", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new InitCommand(null, null).execute(ctx);
     expect(new SaveCommand(null).execute(ctx).error).toBe(
       "no file path: save requires a filename or prior read",
@@ -160,13 +161,13 @@ describe("SaveCommand", () => {
   });
 
   it("无文档", () => {
-    expect(new SaveCommand("x.svg").execute(new EditorContext()).error).toBe(
+    expect(new SaveCommand("x.svg").execute(createEditorContext()).error).toBe(
       "no document. use 'init' or 'read' first",
     );
   });
 
   it("不可写路径", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new InitCommand(null, null).execute(ctx);
     const bad = path.join(tmpDir, "nonexistent-dir", "x.svg");
     const r = new SaveCommand(bad).execute(ctx);
@@ -176,7 +177,7 @@ describe("SaveCommand", () => {
 
 describe("CanvasCommand", () => {
   it("无参：显示尺寸，历史不锁", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new InitCommand("400", "200").execute(ctx);
     const r = new CanvasCommand(null, null).execute(ctx);
     expect(r.lines).toEqual(["canvas 400x200"]);
@@ -185,7 +186,7 @@ describe("CanvasCommand", () => {
   });
 
   it("有参：修改尺寸 + disable", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new InitCommand("400", "200").execute(ctx);
     // init 后 push 一条假的 edit 以解锁
     ctx.history.push({
@@ -202,14 +203,14 @@ describe("CanvasCommand", () => {
   });
 
   it("只改 width", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new InitCommand("400", "200").execute(ctx);
     new CanvasCommand("600", null).execute(ctx);
     expect([ctx.document!.width, ctx.document!.height]).toEqual([600, 200]);
   });
 
   it("无文档", () => {
-    expect(new CanvasCommand(null, null).execute(new EditorContext()).error).toBe(
+    expect(new CanvasCommand(null, null).execute(createEditorContext()).error).toBe(
       "no document. use 'init' or 'read' first",
     );
   });
@@ -217,7 +218,7 @@ describe("CanvasCommand", () => {
 
 describe("UndoCommand / RedoCommand", () => {
   it("undo 命令只是转发 history.undo", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     new InitCommand(null, null).execute(ctx);
     ctx.document!.root.add(new Group("g1"));
     ctx.document!.ids.reserve("g1");
@@ -241,12 +242,12 @@ describe("UndoCommand / RedoCommand", () => {
   });
 
   it("空栈 undo：nothing to undo", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     expect(new UndoCommand().execute(ctx).error).toBe("nothing to undo");
   });
 
   it("空栈 redo：nothing to redo", () => {
-    const ctx = new EditorContext();
+    const ctx = createEditorContext();
     expect(new RedoCommand().execute(ctx).error).toBe("nothing to redo");
   });
 });

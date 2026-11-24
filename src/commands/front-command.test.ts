@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { FrontCommand } from "./FrontCommand";
 import { EditorContext } from "./EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 import { Document } from "../core/Document";
 import { Group } from "../core/Group";
 import { Rect } from "../core/Rect";
 
 function setup(): EditorContext {
-  const ctx = new EditorContext();
+  const ctx = createEditorContext();
   ctx.document = new Document(800, 600);
   return ctx;
 }
@@ -85,7 +86,7 @@ describe("FrontCommand — 错误分支", () => {
   });
 
   it("无文档", () => {
-    expect(new FrontCommand("front", "x").execute(new EditorContext()).error).toBe(
+    expect(new FrontCommand("front", "x").execute(createEditorContext()).error).toBe(
       "no document. use 'init' or 'read' first",
     );
   });

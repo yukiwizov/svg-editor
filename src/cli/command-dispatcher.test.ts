@@ -3,11 +3,12 @@ import { CommandRegistry } from "./CommandRegistry";
 import { registerBuiltinCommands } from "./builtin-commands";
 import { CommandDispatcher } from "./CommandDispatcher";
 import { EditorContext } from "../commands/EditorContext";
+import { createEditorContext } from "../__test-utils__/testContext";
 
 function setup(): { ctx: EditorContext; disp: CommandDispatcher } {
   const reg = new CommandRegistry();
   registerBuiltinCommands(reg);
-  return { ctx: new EditorContext(), disp: new CommandDispatcher(reg) };
+  return { ctx: createEditorContext(), disp: new CommandDispatcher(reg) };
 }
 
 describe("CommandDispatcher — 基础", () => {
