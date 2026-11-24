@@ -375,9 +375,9 @@ VS Code 的 Explorer 装饰和 Outline provider 都是面向宿主 API 的适配
 | 目录职责 | 检查文档是否会把 CLI 插件目录误称为 VS Code 扩展 | 明确区分 `src/plugins/`（CLI 插件）与 `vscode-extension/`（VS Code 扩展），两者不合并 |
 | 扩展点说明 | 检查 README 是否只列接口名称而缺少调用点和缺省行为 | 增补本节扩展点表，逐项列出接口、调用位置、实现、缺省行为和错误处理；可按源码路径复核 |
 | 架构演进 | 检查是否有 Phase 1 与 Phase 2 的可视化依赖对比 | 增加 PlantUML 源文件，图中区分 CLI 插件宿主和独立 VS Code 扩展 |
-| Metrics 新鲜度 | 检查报告中的 measured HEAD 是否等于当前分支 HEAD | 原报告记录的 HEAD 为 `ef29e4f...`，而本次检查时 `phase2` HEAD 为 `19b70a6...`；应在最终提交后重新运行 `npm run metrics`，再提交更新后的报告 |
+| Metrics 新鲜度 | 检查报告快照与最终交付分支是否一致 | `docs/metrics/phase2.md` 的 measured HEAD 为 `3df748b9...`，报告记录 39 个 Phase 1 baseline 之后的提交；后续 `d556ea1` 仅刷新报告，`b1c19f1` 仅加入 VS Code 截图，均未修改 `src/`。因此模块文件数、行数与复杂度统计仍对应最终源码；报告的 Git 历史快照明确截止于 `3df748b9`，不把生成报告自身及后续纯文档提交计入。 |
 
 ### 14. 测试与验证材料索引
 
-测试源码直接随仓库提交，按主题索引见 [`docs/validation/phase2.md`](../docs/validation/phase2.md)。VS Code 的真实运行截图由验收者放入 `docs/images/`，并在该索引中补上图片链接；截图应来自 Extension Development Host 的实际运行界面，不使用绘制的示意图。
+测试源码直接随仓库提交，按主题索引见 [`docs/validation/phase2.md`](../docs/validation/phase2.md)。VS Code Extension Development Host 的四项人工验收截图已归档于 `docs/images/`，并在验证索引中逐项嵌入：Explorer 文件装饰、嵌套 Outline 与源码定位、编辑后的实时更新，以及无效 XML 的安全处理。
 

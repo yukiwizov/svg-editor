@@ -1,6 +1,6 @@
 # Phase 2 测试与验证材料索引
 
-本文件是测试证据导航，不替代测试代码。可复现的自动化验证由仓库中的 Vitest 测试和 GitHub Actions 完成；VS Code UI 行为由 Extension Development Host 人工验收。
+本文件是测试证据导航，不替代测试代码。可复现的自动化验证由仓库中的 Vitest 测试和 GitHub Actions 完成；VS Code UI 行为由 Extension Development Host 人工验收并以真实运行截图留档。
 
 ## 1. 自动化测试位置
 
@@ -40,21 +40,36 @@ npm run compile
 
 ## 3. CI 记录
 
-Phase 2 validation workflow：
+Phase 2 validation workflow（包含 CLI 构建、测试、metrics，以及 VS Code 扩展安装与 TypeScript 编译）：
 
-https://github.com/yukiwizov/svg-editor/actions/runs/45374607891
+https://github.com/yukiwizov/svg-editor/actions/runs/45380900830
 
-该次 run 的 CLI 与 vscode-extension jobs 均成功。CI 自动执行 CLI 安装、构建、测试、metrics，以及扩展依赖安装和 TypeScript 编译；Explorer/Outline 的实际交互仍需人工截图证明。
+该 run 对应提交 `b1c19f1`（截图归档提交），状态为 **completed / success**；CLI 与 VS Code Extension 两个 jobs 均成功。Explorer/Outline 的交互行为另由下列人工验收截图记录。
 
 ## 4. VS Code 人工验收截图
 
-请把真实运行截图放在 `docs/images/`，建议命名如下：
+以下截图均来自真实的 VS Code Extension Development Host，文件原图保存在 `docs/images/`。
 
-- `vscode-svg-badge.png`：Explorer 中 SVG 文件有 `[]`，普通文件和目录无标记。
-- `vscode-svg-outline.png`：Outline 展示嵌套层级，点击节点后源码对应位置高亮。
-- `vscode-svg-update.png`：编辑元素 id 后 Outline 同步更新。
-- `vscode-svg-invalid-xml.png`：不完整 XML 不导致扩展崩溃，Outline 安全清空。
+### 4.1 Explorer SVG 文件装饰
 
-截图要求：来自真实 Extension Development Host；尽量同时显示 Outline 与编辑器；保留文件名、节点 label 和相关源码；不要使用拼接或绘制的效果图。
+SVG 文件显示 `[]` 装饰，普通文件和目录不显示该标记。
 
-截图添加后，在本节下方补充 Markdown 图片链接。当前仓库树尚未包含这些截图文件。
+![Explorer SVG 文件装饰](../images/vscode-svg-badge.png)
+
+### 4.2 Outline 嵌套结构与源码定位
+
+Outline 展示 SVG 的嵌套节点；选择节点可定位到编辑器中的对应源码。
+
+![Outline 嵌套结构与源码定位](../images/vscode-svg-outline.png)
+
+### 4.3 编辑后实时更新
+
+修改元素的 `id` 后，Outline 随文档内容变化同步更新。
+
+![编辑 SVG 后 Outline 实时更新](../images/vscode-svg-update.png)
+
+### 4.4 无效 XML 安全处理
+
+面对不完整或无效 XML，Outline 安全显示无符号/空结果，扩展宿主保持运行，不因解析失败崩溃。
+
+![无效 XML 的安全处理](../images/vscode-svg-invalid-xml.png)
