@@ -48,6 +48,9 @@ export class SetCommand implements EditCommand {
       } catch { /* keep the original handler error */ }
       return err(`attribute handler failed: ${error instanceof Error ? error.message : String(error)}`);
     }
+    if (result !== "ok" && handler && captured) {
+      handler.restore(shape, this.attrName, this.handlerSnapshot);
+    }
     if (result === "unknown") {
       return err(`unknown attribute: ${this.attrName}`);
     }
