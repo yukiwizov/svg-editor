@@ -5,12 +5,16 @@ import { CommandRegistry } from "./CommandRegistry";
 import { registerBuiltinCommands } from "./builtin-commands";
 import { CommandDispatcher } from "./CommandDispatcher";
 import { EditorContext } from "../commands/EditorContext";
+import { PluginHost } from "../plugins/PluginHost";
+import builtinShapes from "../plugins/shapes/plugin";
 
 function setup(lines: string[]): { io: MemoryIO; repl: Repl; ctx: EditorContext } {
   const registry = new CommandRegistry();
   registerBuiltinCommands(registry);
   const dispatcher = new CommandDispatcher(registry);
   const ctx = new EditorContext();
+  const host = new PluginHost(ctx.factory, registry, ctx.attributeHandlers, ctx.treeDecorators);
+  host.activate(builtinShapes);
   const io = new MemoryIO(lines);
   return { io, repl: new Repl(io, dispatcher, ctx), ctx };
 }
