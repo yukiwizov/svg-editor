@@ -3,6 +3,7 @@ import { ShapeFactory } from "../core/ShapeFactory";
 import { SvgReader } from "../io/SvgReader";
 import { SvgWriter } from "../io/SvgWriter";
 import { CommandHistory } from "./CommandHistory";
+import { AttributeHandler } from "./AttributeHandler";
 
 /**
  * 命令层与 CLI 层共享的"环境"：
@@ -23,6 +24,7 @@ export class EditorContext {
   readonly reader: SvgReader;
   readonly writer: SvgWriter;
   readonly history: CommandHistory;
+  readonly attributeHandlers: AttributeHandler[] = [];
 
   constructor() {
     this.document = null;

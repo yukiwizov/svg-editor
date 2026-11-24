@@ -5,6 +5,7 @@ import { Ellipse } from "./Ellipse";
 import { Line } from "./Line";
 import { TextShape } from "./TextShape";
 import { Group } from "./Group";
+import type { ShapeProvider } from "./ShapeProvider";
 
 export type FactoryResult = Shape | { error: string };
 
@@ -34,6 +35,14 @@ export class ShapeFactory {
   register(name: string, creator: Creator, domCreator: DomCreator): void {
     this.creators.set(name, creator);
     this.domCreators.set(name, domCreator);
+  }
+
+  registerProvider(provider: ShapeProvider): void {
+    if (this.isRegistered(provider.name)) throw new Error(`duplicate shape provider: ${provider.name}`);
+    this.register(provider.name, (id, params) => provider.create(id, params), (id, attrs, text) => {
+      if (!provider.createFromDom) throw new Error(`shape provider ${provider.name} cannot import SVG`);
+      return provider.createFromDom(id, attrs, text);
+    });
   }
 
   isRegistered(name: string): boolean {

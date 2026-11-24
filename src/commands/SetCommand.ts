@@ -2,7 +2,7 @@ import { EditCommand } from "./Command";
 import { CommandResult, err, ok } from "./CommandResult";
 import { EditorContext } from "./EditorContext";
 import { locateShape } from "./ShapeLocator";
-import { Shape } from "../core/Shape";
+import { Shape, SetResult } from "../core/Shape";
 
 /**
  * set <id> <attr> <value>
@@ -37,7 +37,17 @@ export class SetCommand implements EditCommand {
     const previous = this.readPrevious(shape);
 
     // 尝试设置（未知/非法时 setAttribute 无副作用）
-    const result = shape.setAttribute(this.attrName, this.value);
+    const handler = ctx.attributeHandlers.find(candidate => candidate.handles(shape, this.attrName));
+    let result: SetResult;
+    try {
+      result = handler ? handler.apply(shape, this.attrName, this.value) : shape.setAttribute(this.attrName, this.value);
+    } catch (error) {
+      try {
+        if (handler && previous !== null) handler.apply(shape, this.attrName, previous);
+        else if (handler) shape.removeAttribute(this.attrName);
+      } catch { /* keep the original handler error */ }
+      return err(`attribute handler failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
     if (result === "unknown") {
       return err(`unknown attribute: ${this.attrName}`);
     }
