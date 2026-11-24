@@ -251,7 +251,7 @@ core  ←  io  ←  commands  ←  cli  ←  index
 | Extension point | Contract | Registration API | Implementation |
 |---|---|---|---|
 | ShapeProvider | src/core/ShapeProvider.ts | ShapeFactory.registerProvider | src/plugins/shapes/builtin-providers.ts（rect/circle/ellipse/line/text/g）；src/plugins/box |
-| Command | src/commands/Command.ts | CommandRegistry.register | src/plugins/commands/stats.ts、dir.ts |
+| Command | src/commands/Command.ts | CommandRegistry.register | src/plugins/commands/stats-plugin/plugin.ts、dir-plugin/plugin.ts |
 | TreeDecorator | src/core/TreeDecorator.ts | PluginHost.registerDecorator | src/plugins/tree-star、src/plugins/box-tree |
 | AttributeHandler | src/commands/AttributeHandler.ts | PluginHost.registerAttribute | src/plugins/box/BoxAttributeHandler.ts |
 
@@ -263,11 +263,11 @@ core  ←  io  ←  commands  ←  cli  ←  index
 - PluginHost.activate 为每个插件创建独立暂存上下文；先核对实际暂存项与 manifest，再提交到 live registries。激活失败或 manifest 不匹配时不产生部分注册。
 - 多个 AttributeHandler 命中同一属性时，按插件注册顺序采用第一个 handler；handles 必须只判断、不修改状态。
 - AttributeHandler 的 capture/apply/restore 提供 memento 事务。handler 抛错或返回非成功结果时恢复原状态；成功的 set 命令作为一个 Phase 1 undo 单元。
-- plugins.config.json 的模块路径相对配置文件解析；包名按 Node 模块解析；enabled:false 跳过；options 原样传入 activate。
+- plugins.config.json 的模块路径相对配置文件解析；包名按 Node 模块解析；enabled:false 跳过；options 原样传入 activate。插件包的 package.json contributes 是配置装配的声明来源，并与实际注册集合做精确比对；A 装配则使用 PluginManifest 内的 contributes。
 
 ### 3. Assembly A / B
 
-A 是显式代码组合，入口 src/plugins/assembleA.ts；B 是配置组合，入口 plugins.config.json。两者的插件顺序一致：box、modified-star、box-tree、stats、dir；两者都先由入口注册六个默认 ShapeProvider。
+A 是显式代码组合，入口 src/plugins/assembleA.ts；B 是配置组合，入口 plugins.config.json。两者的插件顺序一致：box、modified-star、box-tree、stats、dir；两者都先由入口注册六个默认 ShapeProvider。src/plugins/assembly.test.ts 比较两者的贡献集合与 CLI 会话输出。
 
 ~~~bash
 # A — code composition
@@ -310,4 +310,9 @@ DirCommand 只依赖 DirectoryAdapter，读取进程的 cwd()，不读取 SVG �
 
 ### 7. Metrics
 
-执行 npm run metrics，脚本从 Git 的 final tag 与当前 HEAD 读取文件清单、行数和简单复杂度代理指标，生成 docs/metrics/ 报告。复杂度值是基于分支/循环/逻辑运算符的静态近似值，不等同于完整 AST cyclomatic complexity。
+执行 npm run metrics，脚本从 Git 的 final tag 与当前 HEAD 读取文件清单、行数和简单复杂度代理指标，生成 docs/metrics/phase2.md。Phase 2 validation workflow 会将报告上传为 phase2-metrics artifact。复杂度值是基于分支/循环/逻辑运算符的静态近似值，不等同于完整 AST cyclomatic complexity。
+
+
+### 8. CI 验证
+
+`.github/workflows/phase2.yml` 在 `phase2` 分支 push / PR 时运行：CLI 的 `npm ci`、`npm run build`、`npm test`、`npm run metrics`，以及 VS Code 扩展的 `npm install`、`npm run compile`。Metrics 作为 `phase2-metrics` workflow artifact 保存。
