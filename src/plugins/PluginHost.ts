@@ -1,7 +1,7 @@
 import { ShapeFactory } from "../core/ShapeFactory";
 import { CommandRegistry, CommandBuilder } from "../cli/CommandRegistry";
 import { AttributeHandler } from "../commands/AttributeHandler";
-import { TreeDecorator } from "../cli/TreeDecorator";
+import { TreeDecorator } from "../core/TreeDecorator";
 
 export interface PluginManifest {
   name: string;

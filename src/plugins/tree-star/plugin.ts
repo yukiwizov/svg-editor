@@ -1,4 +1,4 @@
-import { TreeDecorator } from "../../cli/TreeDecorator";
+import { TreeDecorator } from "../../core/TreeDecorator";
 import { PluginManifest } from "../PluginHost";
 const decorator: TreeDecorator = {
   name: "modified-star",

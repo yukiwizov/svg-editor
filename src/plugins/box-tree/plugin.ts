@@ -1,4 +1,4 @@
-import { TreeDecorator } from "../../cli/TreeDecorator";
+import { TreeDecorator } from "../../core/TreeDecorator";
 import { PluginManifest } from "../PluginHost";
 import { BoxShape } from "../box/BoxShape";
 const decorator: TreeDecorator = {

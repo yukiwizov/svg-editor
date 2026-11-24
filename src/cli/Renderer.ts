@@ -3,7 +3,7 @@ import { Shape } from "../core/Shape";
 import { isContainer } from "../core/Container";
 import { locateShape } from "../commands/ShapeLocator";
 import { parentLabel } from "../commands/util";
-import { TreeDecorator } from "./TreeDecorator";
+import { TreeDecorator } from "../core/TreeDecorator";
 const TREE_ATTR_COLUMN = 19;
 export class Renderer {
   constructor(private readonly decorators: readonly TreeDecorator[] = [], private readonly isDirty: (shape: Shape) => boolean = () => false) {}

@@ -4,7 +4,7 @@ import { SvgReader } from "../io/SvgReader";
 import { SvgWriter } from "../io/SvgWriter";
 import { CommandHistory } from "./CommandHistory";
 import { AttributeHandler } from "./AttributeHandler";
-import { TreeDecorator } from "../cli/TreeDecorator";
+import { TreeDecorator } from "../core/TreeDecorator";
 import { Shape } from "../core/Shape";
 import { isContainer } from "../core/Container";
 
