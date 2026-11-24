@@ -1,4 +1,6 @@
 import { describe, it, expect } from "vitest";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { ShapeFactory } from "../core/ShapeFactory";
 import { EditorContext } from "../commands/EditorContext";
 import { CommandRegistry } from "../cli/CommandRegistry";
@@ -20,9 +22,18 @@ function assemble(assembly: "A" | "B") {
   const ctx = new EditorContext(factory);
   const host = new PluginHost(factory, registry, ctx.attributeHandlers, ctx.treeDecorators);
   host.activate(builtinShapes);
-  const bPlugins: PluginManifest[] = [box, star, boxTree, stats, dir];
+  const bPlugins: Array<{ plugin: PluginManifest; packagePath: string }> = [
+    { plugin: box, packagePath: "src/plugins/box/package.json" },
+    { plugin: star, packagePath: "src/plugins/tree-star/package.json" },
+    { plugin: boxTree, packagePath: "src/plugins/box-tree/package.json" },
+    { plugin: stats, packagePath: "src/plugins/commands/stats-plugin/package.json" },
+    { plugin: dir, packagePath: "src/plugins/commands/dir-plugin/package.json" },
+  ];
   if (assembly === "A") activateAssemblyA(host);
-  else for (const plugin of bPlugins) host.activate(plugin);
+  else for (const entry of bPlugins) {
+    const packageJson = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), entry.packagePath), "utf8"));
+    host.activate(entry.plugin, {}, packageJson.contributes);
+  }
   return { ctx, host, registry, dispatcher: new CommandDispatcher(registry) };
 }
 
