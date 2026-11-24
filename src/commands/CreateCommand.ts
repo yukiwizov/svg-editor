@@ -54,6 +54,7 @@ export class CreateCommand implements EditCommand {
       }
       parent = located.shape;
       parentTag = located.shape.getTagName();
+      if (parent.acceptsChildren?.() === false) return err(`cannot add children to composite shape: ${this.containerId}`);
     } else {
       parent = doc.root;
       parentTag = "svg";

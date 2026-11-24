@@ -38,4 +38,6 @@ export class BoxShape extends Shape implements Container {
   insertAt(_index: number, _child: Shape): void { throw new Error("box has fixed structural children"); }
   removeAt(_index: number): Shape | undefined { throw new Error("box structural children cannot be removed"); }
   indexOf(child: Shape): number { return this.getChildren().indexOf(child); }
+  isStructuralChild(child: Shape): boolean { return this.getChildren().includes(child); }
+  acceptsChildren(): boolean { return false; }
 }

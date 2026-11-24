@@ -1,7 +1,7 @@
 import { EditCommand } from "./Command";
 import { CommandResult, err, ok } from "./CommandResult";
 import { EditorContext } from "./EditorContext";
-import { locateShape } from "./ShapeLocator";
+import { locateShape, isStructuralChild } from "./ShapeLocator";
 import { parentLabel } from "./util";
 import { Shape } from "../core/Shape";
 import { Container } from "../core/Container";
@@ -29,6 +29,7 @@ export class DeleteCommand implements EditCommand {
     if (!located) {
       return err(`no such shape: ${this.id}`);
     }
+    if (isStructuralChild(located)) return err(`cannot modify required child of composite shape: ${this.id}`);
     this.snapshot = {
       shape: located.shape,
       parent: located.parent,

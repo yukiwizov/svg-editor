@@ -30,6 +30,10 @@ export interface Container {
 
   /** 返回子节点在 children 中的索引；不在返回 -1。 */
   indexOf(child: Shape): number;
+
+  /** Composite containers may lock required structural children and reject additions. */
+  isStructuralChild?(child: Shape): boolean;
+  acceptsChildren?(): boolean;
 }
 
 /**

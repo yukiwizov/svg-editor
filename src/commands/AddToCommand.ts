@@ -1,7 +1,7 @@
 import { EditCommand } from "./Command";
 import { CommandResult, err, ok } from "./CommandResult";
 import { EditorContext } from "./EditorContext";
-import { locateShape } from "./ShapeLocator";
+import { locateShape, isStructuralChild } from "./ShapeLocator";
 import { parentLabel, subtreeContains } from "./util";
 import { Shape } from "../core/Shape";
 import { Container, isContainer } from "../core/Container";
@@ -49,11 +49,13 @@ export class AddToCommand implements EditCommand {
     if (!isContainer(containerLocated.shape)) {
       return err(`not a container: ${this.gid}`);
     }
+    if (containerLocated.shape.acceptsChildren?.() === false) return err(`cannot add children to composite shape: ${this.gid}`);
     const shapeLocated = locateShape(doc, this.id);
     if (!shapeLocated) {
       return err(`no such shape: ${this.id}`);
     }
 
+    if (isStructuralChild(shapeLocated)) return err(`cannot modify required child of composite shape: ${this.id}`);
     // 防环：id 就是 gid
     if (shapeLocated.shape === containerLocated.shape) {
       return err(`cannot add a container into itself: ${this.gid}`);

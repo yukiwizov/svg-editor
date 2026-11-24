@@ -1,7 +1,7 @@
 import { EditCommand } from "./Command";
 import { CommandResult, err, ok } from "./CommandResult";
 import { EditorContext } from "./EditorContext";
-import { locateShape } from "./ShapeLocator";
+import { locateShape, isStructuralChild } from "./ShapeLocator";
 import { subtreeContains } from "./util";
 import { Group } from "../core/Group";
 import { Shape } from "../core/Shape";
@@ -57,6 +57,7 @@ export class GroupCommand implements EditCommand {
       if (!located) {
         return err(`no such shape: ${id}`);
       }
+      if (isStructuralChild(located)) return err(`cannot modify required child of composite shape: ${id}`);
       preShapes.push(located.shape);
     }
     for (const shape of preShapes) {

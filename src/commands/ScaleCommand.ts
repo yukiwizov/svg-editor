@@ -1,7 +1,7 @@
 import { EditCommand } from "./Command";
 import { CommandResult, err, ok } from "./CommandResult";
 import { EditorContext } from "./EditorContext";
-import { locateShape } from "./ShapeLocator";
+import { locateShape, isStructuralChild } from "./ShapeLocator";
 import { parseNumber } from "../core/Shape";
 
 /**
@@ -38,6 +38,7 @@ export class ScaleCommand implements EditCommand {
     if (!located) {
       return err(`no such shape: ${this.id}`);
     }
+    if (isStructuralChild(located)) return err(`cannot modify required child of composite shape: ${this.id}`);
     located.shape.scaleFromOrigin(this.factorNum);
     return ok(`${located.shape.getTagName()}#${this.id} scaled by ${this.factorNum}`);
   }

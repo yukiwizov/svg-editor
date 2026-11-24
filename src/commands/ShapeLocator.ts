@@ -15,6 +15,10 @@ export interface LocatedShape {
  * 用途：所有需要"根据 id 找图形"的命令（create 的 in 子句、delete、
  * move、scale、set、group、addto、front、back 等）都通过此工具。
  */
+export function isStructuralChild(located: LocatedShape): boolean {
+  return located.parent.isStructuralChild?.(located.shape) ?? false;
+}
+
 export function locateShape(doc: Document, id: string): LocatedShape | null {
   return walk(doc.root, id);
 }

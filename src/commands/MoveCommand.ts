@@ -1,7 +1,7 @@
 import { EditCommand } from "./Command";
 import { CommandResult, err, ok } from "./CommandResult";
 import { EditorContext } from "./EditorContext";
-import { locateShape } from "./ShapeLocator";
+import { locateShape, isStructuralChild } from "./ShapeLocator";
 import { Shape, parseNumber } from "../core/Shape";
 
 /**
@@ -43,6 +43,7 @@ export class MoveCommand implements EditCommand {
     if (!located) {
       return err(`no such shape: ${this.id}`);
     }
+    if (isStructuralChild(located)) return err(`cannot modify required child of composite shape: ${this.id}`);
     located.shape.moveBy(this.dxNum, this.dyNum);
     return ok(this.describe(located.shape, "moved"));
   }
