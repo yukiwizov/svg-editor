@@ -11,6 +11,11 @@
       "options": {}
     },
     {
+      "module": "./src/plugins/box-tree/plugin",
+      "enabled": true,
+      "options": {}
+    },
+    {
       "module": "./src/plugins/commands/stats",
       "enabled": true,
       "options": {}

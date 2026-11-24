@@ -9,6 +9,7 @@ import { Repl, ReplIO } from "./cli/Repl";
 import { EditorContext } from "./commands/EditorContext";
 import { PluginHost, PluginManifest } from "./plugins/PluginHost";
 import builtinShapes from "./plugins/shapes/plugin";
+import { activateAssemblyA } from "./plugins/assembleA";
 
 /**
  * 用 node:readline 实现 ReplIO。
@@ -79,7 +80,8 @@ async function main(): Promise<void> {
   const ctx = new EditorContext();
   const host = new PluginHost(ctx.factory, registry, ctx.attributeHandlers, ctx.treeDecorators);
   host.activate(builtinShapes);
-  await loadPlugins(host);
+  if (process.env.SVG_EDITOR_PLUGIN_ASSEMBLY === "A") activateAssemblyA(host);
+  else await loadPlugins(host);
   const repl = new Repl(makeReadlineIO(), dispatcher, ctx);
   await repl.run();
 }

@@ -14,7 +14,7 @@ export class DirCommand implements Command {
     let path = "";
     try {
       path = this.adapter.cwd();
-      const entries = this.adapter.list(path);
+      const entries = this.adapter.list(path).filter(entry => entry.isDirectory || entry.isFile);
       if (entries.length === 0) return { lines: ["(empty directory)"] };
       const sorted = [...entries].sort((a, b) => {
         if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1;
