@@ -16,12 +16,12 @@
       "options": {}
     },
     {
-      "module": "./src/plugins/commands/stats",
+      "module": "./src/plugins/commands/stats-plugin/plugin",
       "enabled": true,
       "options": {}
     },
     {
-      "module": "./src/plugins/commands/dir",
+      "module": "./src/plugins/commands/dir-plugin/plugin",
       "enabled": true,
       "options": {}
     }

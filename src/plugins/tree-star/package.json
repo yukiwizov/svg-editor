@@ -1,0 +1,10 @@
+{
+  "name": "svg-editor-plugin-modified-star",
+  "version": "1.0.0",
+  "main": "plugin.ts",
+  "contributes": {
+    "decorators": [
+      "modified-star"
+    ]
+  }
+}

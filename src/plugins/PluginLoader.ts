@@ -63,12 +63,31 @@ export function loadConfiguredPlugins(
     }
 
     try {
-      host.activate(plugin, (item.options ?? {}) as Record<string, unknown>);
+      const packageContributes = findPackageContributions(resolvedModule);
+      host.activate(plugin, (item.options ?? {}) as Record<string, unknown>, packageContributes ?? plugin.contributes);
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
       if (reason.startsWith("manifest mismatch:")) report(`error: plugin ${reason}`);
       else if (reason.startsWith("duplicate registration:")) report(`error: ${reason}`);
       else report(`error: plugin failed to activate: ${plugin.name} (${reason})`);
     }
+  }
+}
+
+function findPackageContributions(modulePath: string): PluginManifest["contributes"] | undefined {
+  let directory = path.dirname(modulePath);
+  while (true) {
+    const manifestPath = path.join(directory, "package.json");
+    if (fs.existsSync(manifestPath)) {
+      try {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as { contributes?: PluginManifest["contributes"] };
+        if (manifest.contributes !== undefined) return manifest.contributes;
+      } catch {
+        throw new Error(`invalid package manifest: ${manifestPath}`);
+      }
+    }
+    const parent = path.dirname(directory);
+    if (parent === directory) return undefined;
+    directory = parent;
   }
 }

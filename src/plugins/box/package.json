@@ -1,0 +1,13 @@
+{
+  "name": "svg-editor-plugin-box",
+  "version": "1.0.0",
+  "main": "plugin.ts",
+  "contributes": {
+    "shapes": [
+      "box"
+    ],
+    "attributes": [
+      "box-attributes"
+    ]
+  }
+}

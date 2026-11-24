@@ -1,0 +1,15 @@
+{
+  "name": "svg-editor-plugin-builtin-shapes",
+  "version": "1.0.0",
+  "main": "plugin.ts",
+  "contributes": {
+    "shapes": [
+      "rect",
+      "circle",
+      "ellipse",
+      "line",
+      "text",
+      "g"
+    ]
+  }
+}

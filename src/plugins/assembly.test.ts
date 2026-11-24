@@ -10,8 +10,8 @@ import { activateAssemblyA } from "./assembleA";
 import box from "./box/plugin";
 import star from "./tree-star/plugin";
 import boxTree from "./box-tree/plugin";
-import stats from "./commands/stats";
-import dir from "./commands/dir";
+import stats from "./commands/stats-plugin/plugin";
+import dir from "./commands/dir-plugin/plugin";
 
 function assemble(assembly: "A" | "B") {
   const factory = new ShapeFactory();

@@ -27,11 +27,11 @@ export class PluginHost {
   ) {}
 
   /** Stage every registration, validate the exact manifest delta, then commit atomically. */
-  activate(plugin: PluginManifest, options: Record<string, unknown> = {}): void {
+  activate(plugin: PluginManifest, options: Record<string, unknown> = {}, declaredOverride?: PluginManifest["contributes"]): void {
     if (!plugin || typeof plugin.name !== "string" || !plugin.name.trim() || typeof plugin.activate !== "function") {
       throw new Error("invalid plugin manifest");
     }
-    const declared = normalize(plugin.contributes);
+    const declared = normalize(declaredOverride ?? plugin.contributes);
     const staged = {
       shapes: [] as ShapeProvider[],
       commands: [] as Array<{ name: string; builder: CommandBuilder }>,

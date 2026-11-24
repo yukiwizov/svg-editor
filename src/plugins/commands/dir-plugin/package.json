@@ -1,0 +1,10 @@
+{
+  "name": "svg-editor-plugin-dir",
+  "version": "1.0.0",
+  "main": "plugin.ts",
+  "contributes": {
+    "commands": [
+      "dir"
+    ]
+  }
+}
