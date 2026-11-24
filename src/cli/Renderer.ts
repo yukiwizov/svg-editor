@@ -8,7 +8,8 @@ const TREE_ATTR_COLUMN = 19;
 export class Renderer {
   constructor(private readonly decorators: readonly TreeDecorator[] = [], private readonly isDirty: (shape: Shape) => boolean = () => false) {}
   renderTree(doc: Document): string[] {
-    const lines: string[] = [`svg (${doc.width}x${doc.height})`];
+    const rootTags = this.decorators.map(d => d.decorate(doc.root, this.isDirty(doc.root))).filter((v): v is string => !!v).join(" ");
+    const lines: string[] = [`svg (${doc.width}x${doc.height})${rootTags ? `  ${rootTags}` : ""}`];
     const children = doc.root.getChildren();
     for (let i = 0; i < children.length; i++) this.appendNode(children[i], "", i === children.length - 1, lines);
     return lines;

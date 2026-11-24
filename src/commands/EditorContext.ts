@@ -41,7 +41,7 @@ export class EditorContext {
       this.savedFingerprints.set(shape.getId(), fingerprint);
       return fingerprint;
     };
-    for (const child of this.document.root.getChildren()) visit(child);
+    visit(this.document.root);
   }
 
   isShapeDirty(shape: Shape): boolean {
