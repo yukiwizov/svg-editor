@@ -1,7 +1,7 @@
 import { EditCommand } from "./Command";
 import { CommandResult, err, ok } from "./CommandResult";
 import { EditorContext } from "./EditorContext";
-import { locateShape, isStructuralChild } from "./ShapeLocator";
+import { locateShape } from "./ShapeLocator";
 import { Shape, SetResult } from "../core/Shape";
 import { AttributeHandler } from "./AttributeHandler";
 
@@ -24,7 +24,6 @@ export class SetCommand implements EditCommand {
     if (!ctx.document) return err("no document. use 'init' or 'read' first");
     const located = locateShape(ctx.document, this.id);
     if (!located) return err(`no such shape: ${this.id}`);
-    if (isStructuralChild(located)) return err(`cannot modify required child of composite shape: ${this.id}`);
     const shape = located.shape;
     const previous = this.readPrevious(shape);
     const handler = ctx.attributeHandlers.find(candidate => candidate.handles(shape, this.attrName));

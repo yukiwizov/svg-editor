@@ -7,6 +7,10 @@ import { ShapeFactory } from "../../core/ShapeFactory";
 import { boxShapeProvider, boxAttributeHandler } from "./index";
 import { BoxShape } from "./BoxShape";
 import { locateShape } from "../../commands/ShapeLocator";
+import { SvgReader } from "../../io/SvgReader";
+import { SvgWriter } from "../../io/SvgWriter";
+import { AttributeHandler } from "../../commands/AttributeHandler";
+import { createDefaultFactory } from "../../__test-utils__/testContext";
 
 function setup(): EditorContext {
   const factory = new ShapeFactory();
@@ -42,6 +46,38 @@ describe("box composite plugin", () => {
     expect((locateShape(ctx.document!, "b1")!.shape as BoxShape).label.content).toBe("after");
     label.undo(ctx);
     expect((locateShape(ctx.document!, "b1")!.shape as BoxShape).label.content).toBe("before");
+  });
+
+  it("rolls back a handler that mutates and then throws", () => {
+    const ctx = setup();
+    new CreateCommand("create", "box", "b1", ["0","0","40","20","blue","before"], null).execute(ctx);
+    const failing: AttributeHandler = {
+      name: "failing-box-fill",
+      handles: (shape, attribute) => shape instanceof BoxShape && attribute === "fill",
+      capture: shape => (shape as BoxShape).rect.getAttribute("fill"),
+      apply: shape => { (shape as BoxShape).rect.setAttribute("fill", "partial"); throw new Error("synthetic failure"); },
+      restore: (shape, _attribute, snapshot) => { (shape as BoxShape).rect.setAttribute("fill", String(snapshot)); },
+    };
+    ctx.attributeHandlers.unshift(failing);
+    const result = new SetCommand("set", "b1", "fill", "red").execute(ctx);
+    expect(result.error).toContain("attribute handler failed: synthetic failure");
+    expect((locateShape(ctx.document!, "b1")!.shape as BoxShape).rect.getAttribute("fill")).toBe("blue");
+  });
+
+  it("round-trips box SVG and rejects missing structural children", () => {
+    const factory = createDefaultFactory();
+    factory.registerProvider(boxShapeProvider);
+    const reader = new SvgReader(factory);
+    const xml = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="80"><g id="b1" data-kind="box"><rect id="b1-rect" x="2" y="3" width="40" height="20" fill="green"/><text id="b1-label" x="10" y="18">caption</text></g></svg>`;
+    const first = reader.read(xml).document;
+    const box = first.root.getChildren()[0] as BoxShape;
+    expect(box.label.content).toBe("caption");
+    expect(box.rect.getAttribute("fill")).toBe("green");
+    const serialized = new SvgWriter().serialize(first);
+    const second = reader.read(serialized).document.root.getChildren()[0] as BoxShape;
+    expect(second.label.content).toBe("caption");
+    expect(second.rect.getAttribute("fill")).toBe("green");
+    expect(() => reader.read(`<svg><g id="b1" data-kind="box"><rect id="b1-rect"/></g></svg>`)).toThrow(/exactly rect followed by text/);
   });
 
   it("cannot ungroup the composite", () => {
