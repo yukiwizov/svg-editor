@@ -8,6 +8,7 @@ import { CommandDispatcher } from "./cli/CommandDispatcher";
 import { Repl, ReplIO } from "./cli/Repl";
 import { EditorContext } from "./commands/EditorContext";
 import { PluginHost, PluginManifest } from "./plugins/PluginHost";
+import builtinShapes from "./plugins/shapes/plugin";
 
 /**
  * 用 node:readline 实现 ReplIO。
@@ -77,6 +78,7 @@ async function main(): Promise<void> {
   const dispatcher = new CommandDispatcher(registry);
   const ctx = new EditorContext();
   const host = new PluginHost(ctx.factory, registry, ctx.attributeHandlers, ctx.treeDecorators);
+  host.activate(builtinShapes);
   await loadPlugins(host);
   const repl = new Repl(makeReadlineIO(), dispatcher, ctx);
   await repl.run();
