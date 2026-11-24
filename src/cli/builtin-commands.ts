@@ -38,7 +38,7 @@ export function registerBuiltinCommands(registry: CommandRegistry): void {
   registry.register("redo", buildRedo);
   registry.register("tree", buildTree);
   registry.register("show", buildShow);
-  registry.register("help", buildHelp);undefined
+  registry.register("help", buildHelp);
 }
 
 // ---- builder 与 P1-C13 保持一致，此处省略（保留原内容） ----

@@ -5,6 +5,8 @@ import { SvgWriter } from "../io/SvgWriter";
 import { CommandHistory } from "./CommandHistory";
 import { AttributeHandler } from "./AttributeHandler";
 import { TreeDecorator } from "../cli/TreeDecorator";
+import { Shape } from "../core/Shape";
+import { isContainer } from "../core/Container";
 
 /**
  * 命令层与 CLI 层共享的"环境"：
@@ -27,6 +29,29 @@ export class EditorContext {
   readonly history: CommandHistory;
   readonly attributeHandlers: AttributeHandler[] = [];
   readonly treeDecorators: TreeDecorator[] = [];
+
+  private savedFingerprints = new Map<string, string>();
+
+  markSaved(): void {
+    this.savedFingerprints.clear();
+    if (!this.document) return;
+    const visit = (shape: Shape): string => {
+      const children = isContainer(shape) ? shape.getChildren().map(visit) : [];
+      const fingerprint = JSON.stringify({ tag: shape.getTagName(), attrs: shape.getAttributes(), text: shape.getTextContent(), children });
+      this.savedFingerprints.set(shape.getId(), fingerprint);
+      return fingerprint;
+    };
+    for (const child of this.document.root.getChildren()) visit(child);
+  }
+
+  isShapeDirty(shape: Shape): boolean {
+    const visit = (current: Shape): string => {
+      const children = isContainer(current) ? current.getChildren().map(visit) : [];
+      return JSON.stringify({ tag: current.getTagName(), attrs: current.getAttributes(), text: current.getTextContent(), children });
+    };
+    const baseline = this.savedFingerprints.get(shape.getId());
+    return baseline === undefined || baseline !== visit(shape);
+  }
 
   constructor() {
     this.document = null;

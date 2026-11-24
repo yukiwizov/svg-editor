@@ -35,6 +35,7 @@ export class InitCommand implements Command {
     }
     ctx.document = new Document(width, height);
     ctx.history.reset();
+    ctx.markSaved();
     return ok(`canvas ${width}x${height} created`);
   }
 }

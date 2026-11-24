@@ -33,6 +33,7 @@ export class ReadCommand implements Command {
     document.sourcePath = this.filePath;
     ctx.document = document;
     ctx.history.reset();
+    ctx.markSaved();
 
     const lines = [
       ...warnings.map((w) => `warning: ${w}`),

@@ -30,6 +30,7 @@ export class SaveCommand implements Command {
     }
     ctx.document.sourcePath = target;
     ctx.history.disable();
+    ctx.markSaved();
     return ok(`saved to ${target} (${ctx.document.countElements()} elements)`);
   }
 }

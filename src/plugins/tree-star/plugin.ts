@@ -2,7 +2,7 @@ import { TreeDecorator } from "../../cli/TreeDecorator";
 import { PluginManifest } from "../PluginHost";
 const decorator: TreeDecorator = {
   name: "modified-star",
-  decorate: () => undefined,
+  decorate(_shape, dirty) { return dirty ? "*" : undefined; },
 };
 const plugin: PluginManifest = {
   name: "tree-star",
