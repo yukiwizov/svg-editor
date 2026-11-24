@@ -47,6 +47,7 @@ export class UngroupCommand implements EditCommand {
     if (!isContainer(located.shape)) {
       return err(`not a container: ${this.gid}`);
     }
+    if (!located.shape.isUngroupable()) return err(`cannot ungroup composite shape: ${this.gid}`);
     if (located.parent === doc.root) {
       return err(`cannot ungroup top-level container: ${this.gid}`);
     }

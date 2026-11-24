@@ -95,7 +95,8 @@ export class SvgReader {
 
     const textContent = tag === "text" ? (elem.textContent ?? "") : null;
 
-    const shape = this.factory.createFromDom(tag, id, attrs, textContent);
+    const providerTag = tag === "g" && attrs["data-kind"] === "box" && this.factory.isRegistered("box") ? "box" : tag;
+    const shape = this.factory.createFromDom(providerTag, id, attrs, textContent);
     if (!shape) {
       warnings.push(`skipped unknown element <${tag} id="${id}">`);
       return null;

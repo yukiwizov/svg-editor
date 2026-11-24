@@ -14,6 +14,9 @@ export abstract class Shape {
 
   protected constructor(public readonly id: string) {}
 
+  /** Composite plugins may forbid ungrouping while remaining normal containers. */
+  isUngroupable(): boolean { return true; }
+
   getId(): string {
     return this.id;
   }
