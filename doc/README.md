@@ -241,3 +241,73 @@ core  ←  io  ←  commands  ←  cli  ←  index
 - **SVG `transform` 属性**：读入时忽略并警告，输出时一律扁平坐标。理由见"变化点假设 #3"。
 - **`scale` 的 undo 精度**：使用 `scaleFromOrigin(1/factor)`，存在 ~1e-15 浮点误差（测试用 `toBeCloseTo`）；`factor` 特殊值（如 1/3）无法完全精确逆变换。Phase 1 接受。
 - **PowerShell 管道 TTY 差异**：见"过程记录 · 案例 5"。
+
+---
+
+## Phase 2 — 插件化 CLI 与 VS Code 扩展
+
+### 1. Kernel extension points
+
+| Extension point | Contract | Registration API | Implementation |
+|---|---|---|---|
+| ShapeProvider | src/core/ShapeProvider.ts | ShapeFactory.registerProvider | src/plugins/shapes/builtin-providers.ts（rect/circle/ellipse/line/text/g）；src/plugins/box |
+| Command | src/commands/Command.ts | CommandRegistry.register | src/plugins/commands/stats.ts、dir.ts |
+| TreeDecorator | src/core/TreeDecorator.ts | PluginHost.registerDecorator | src/plugins/tree-star、src/plugins/box-tree |
+| AttributeHandler | src/commands/AttributeHandler.ts | PluginHost.registerAttribute | src/plugins/box/BoxAttributeHandler.ts |
+
+内核的 ShapeFactory 只依赖 ShapeProvider 接口，不直接 import 六种具体图形类。默认组装由 src/plugins/shapes/plugin.ts 提供六种 Phase 1 图形；Phase 1 命令仍由 CLI 默认注册。可选插件禁用或配置文件缺失时，默认 CLI 仍可启动。
+
+### 2. Plugin registration
+
+- PluginManifest 在 src/plugins/PluginHost.ts 定义，必须提供稳定 name、contributes 和 activate。
+- PluginHost.activate 在激活前记录各类别注册快照，激活后比较实际新增名称与 manifest；不一致或激活异常时撤销本次新增注册。
+- 多个 AttributeHandler 命中同一属性时，按插件注册顺序采用第一个 handler；handles 必须只判断、不修改状态。
+- AttributeHandler 的 capture/apply/restore 提供 memento 事务。handler 抛错或返回非成功结果时恢复原状态；成功的 set 命令作为一个 Phase 1 undo 单元。
+- plugins.config.json 的模块路径相对配置文件解析；包名按 Node 模块解析；enabled:false 跳过；options 原样传入 activate。
+
+### 3. Assembly A / B
+
+A 是显式代码组合，入口 src/plugins/assembleA.ts；B 是配置组合，入口 plugins.config.json。两者的插件顺序一致：box、modified-star、box-tree、stats、dir；两者都先由入口注册六个默认 ShapeProvider。
+
+~~~bash
+# A — code composition
+SVG_EDITOR_PLUGIN_ASSEMBLY=A npm run cli
+
+# B — configuration composition (default)
+npm run cli
+~~~
+
+PowerShell：
+
+~~~powershell
+$env:SVG_EDITOR_PLUGIN_ASSEMBLY = "A"
+npm run cli
+Remove-Item Env:SVG_EDITOR_PLUGIN_ASSEMBLY
+~~~
+
+### 4. Box semantics and ADRs
+
+Box 是一个带 data-kind="box" 的 SVG g，固定包含 rect#<id>-rect 和 text#<id>-label。对 Box 的 move/scale/delete 作用于整个复合对象；set <boxId> fill <value> 与 set <boxId> label <value> 由 AttributeHandler 转发。子节点是结构必需项，不允许单独 move/scale/set/delete/reorder/group；Box 不允许 addto，也不能 ungroup。
+
+- [ADR-001 AttributeHandler 事务与冲突策略](../docs/adr/0001-attribute-handler-transaction.md)
+- [ADR-002 Box SVG 读取策略](../docs/adr/0002-box-svg-read-policy.md)
+- [ADR-003 modified-star 脏状态语义](../docs/adr/0003-modified-star-dirty-state.md)
+- [ADR-004 插件 manifest 校验时机](../docs/adr/0004-plugin-manifest-validation.md)
+
+### 5. dir adapter
+
+DirCommand 只依赖 DirectoryAdapter，读取进程的 cwd()，不读取 SVG 文件路径，也不改文档或历史。生产适配器使用 Node fs.readdirSync(..., { withFileTypes: true })；测试可注入内存适配器。只输出普通文件和目录，隐藏文件包含在内；符号链接及 socket/device 等特殊 Dirent（既非 file 也非 directory）不显示。目录优先，其次文件，名称按升序排列。
+
+### 6. VS Code extension
+
+扩展源码在 vscode-extension/，不改 SVG 文件名或内容：
+- Explorer 的 SVG 文件显示 [] decoration；
+- Outline 由 DocumentSymbolProvider 提供，按嵌套结构显示 tag 或 tag#id；
+- 点击 symbol 使用 VS Code 原生 Outline 导航定位源代码；
+- 文档编辑时 VS Code 重新请求 symbols；不完整或标签不匹配的 XML 返回空 Outline，不向宿主抛异常。
+
+开发运行：在 VS Code 打开 vscode-extension/，执行 npm install、npm run compile，按 F5 启动 Extension Development Host，再打开含 SVG 的工作区。扩展与 CLI 内核分离：VS Code API 属于 host；Outline scanner 和 decoration provider 属于 extension adapter。CLI 的 ShapeProvider/Command/TreeDecorator/AttributeHandler 与 VS Code API 没有运行时依赖。
+
+### 7. Metrics
+
+执行 npm run metrics，脚本从 Git 的 final tag 与当前 HEAD 读取文件清单、行数和简单复杂度代理指标，生成 docs/metrics/ 报告。复杂度值是基于分支/循环/逻辑运算符的静态近似值，不等同于完整 AST cyclomatic complexity。
