@@ -3,6 +3,7 @@ import { Shape } from "../core/Shape";
 import { Container, isContainer } from "../core/Container";
 import { locateShape } from "../commands/ShapeLocator";
 import { parentLabel } from "../commands/util";
+import { TreeDecorator } from "./TreeDecorator";
 
 /**
  * 树形/明细输出格式化。
@@ -13,6 +14,7 @@ import { parentLabel } from "../commands/util";
 const TREE_ATTR_COLUMN = 19;
 
 export class Renderer {
+  constructor(private readonly decorators: readonly TreeDecorator[] = []) {}
   /**
    * 全文档树。第一行 svg (w×h)，其余是子节点。
    */
@@ -82,7 +84,7 @@ export class Renderer {
 
   private nodeLine(prefix: string, shape: Shape): string {
     const head = `${prefix}${shape.getTagName()}#${shape.getId()}`;
-    const attrs = shape.describeForTree();
+    const attrs = [shape.describeForTree(), ...this.decorators.map(d => d.decorate(shape)).filter((v): v is string => !!v)].filter(Boolean).join(" ");
     if (!attrs) return head;
     const pad = Math.max(2, TREE_ATTR_COLUMN - head.length);
     return head + " ".repeat(pad) + attrs;

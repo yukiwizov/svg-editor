@@ -11,5 +11,11 @@ export const boxShapeProvider: ShapeProvider = {
     if (values.some(value => !Number.isFinite(value))) return { error: "invalid numeric parameter for box" };
     return new BoxShape(id, values[0], values[1], values[2], values[3], params[4] ?? "none", params[5] ?? "");
   },
+  createFromDom(id, attrs) {
+    const x = Number(attrs.x ?? 0), y = Number(attrs.y ?? 0);
+    const width = Number(attrs.width ?? 0), height = Number(attrs.height ?? 0);
+    if (![x, y, width, height].every(Number.isFinite)) throw new Error("invalid box geometry");
+    return new BoxShape(id, x, y, width, height, attrs.fill ?? "none", attrs["aria-label"] ?? "");
+  },
 };
 export const boxAttributeHandler: AttributeHandler = new BoxAttributeHandler();

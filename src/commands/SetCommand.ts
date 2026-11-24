@@ -71,11 +71,10 @@ export class SetCommand implements EditCommand {
     }
     const shape = located.shape;
 
-    if (this.oldValue === null) {
-      shape.removeAttribute(this.attrName);
-    } else {
-      shape.setAttribute(this.attrName, this.oldValue);
-    }
+    const handler = ctx.attributeHandlers.find(candidate => candidate.handles(shape, this.attrName));
+    if (this.oldValue === null) shape.removeAttribute(this.attrName);
+    else if (handler) handler.apply(shape, this.attrName, this.oldValue);
+    else shape.setAttribute(this.attrName, this.oldValue);
     const display = this.oldValue === null ? "(none)" : `"${this.oldValue}"`;
     return ok(`${shape.getTagName()}#${this.id} updated: ${this.attrName}=${display}`);
   }

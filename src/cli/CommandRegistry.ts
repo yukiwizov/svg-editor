@@ -23,6 +23,7 @@ export class CommandRegistry {
   private builders = new Map<string, CommandBuilder>();
 
   register(name: string, builder: CommandBuilder): void {
+    if (this.builders.has(name)) throw new Error(`duplicate registration: command/${name}`);
     this.builders.set(name, builder);
   }
 
