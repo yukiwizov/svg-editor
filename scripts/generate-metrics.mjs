@@ -12,6 +12,17 @@ const complexity = source => {
   const stripped = source.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, " ");
   return (stripped.match(/\b(if|for|while|case|catch)\b|&&|\|\||\?/g) ?? []).length;
 };
+const responsibility = file => {
+  if (file.startsWith("src/core/")) return "Domain model, shape/container contracts and registries";
+  if (file.startsWith("src/commands/")) return "Editing commands, undo history and attribute transactions";
+  if (file.startsWith("src/cli/")) return "REPL, command registry, rendering and display commands";
+  if (file.startsWith("src/io/")) return "SVG parsing, serialization and id assignment";
+  if (file.startsWith("src/plugins/")) return "Shape providers and optional Phase 2 plugin implementations";
+  if (file === "src/index.ts") return "Runtime composition root";
+  if (file.includes("/__arch__/")) return "Architecture regression checks";
+  if (file.includes("/__test-utils__/")) return "Shared test fixtures";
+  return "Other source and tests";
+};
 const currentFiles = filesAt(head);
 const baselineFiles = filesAt(baseline);
 const rows = currentFiles.map(file => {
@@ -43,9 +54,9 @@ const output = [
   `- Delta: ${currentComplexity - baselineComplexity}`, "",
   "Proxy counts if/for/while/case/catch, &&, || and conditional operators after stripping comments and quoted strings. It is a reproducible trend indicator, not an AST cyclomatic-complexity score.", "",
   "## File inventory", "",
-  "| File | Lines | Complexity proxy |",
-  "|---|---:|---:|",
-  ...rows.map(row => `| ${row.file} | ${row.lines} | ${row.complexity} |`), "",
+  "| File | Responsibility | Lines | Complexity proxy |",
+  "|---|---|---:|---:|",
+  ...rows.map(row => `| ${row.file} | ${responsibility(row.file)} | ${row.lines} | ${row.complexity} |`), "",
   "## Commit history", "", ...history.map(item => `- ${item}`), "",
 ].join("\n");
 mkdirSync("docs/metrics", { recursive: true });
