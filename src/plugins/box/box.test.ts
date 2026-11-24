@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { Document } from "../../core/Document";
 import { CreateCommand } from "../../commands/CreateCommand";
 import { SetCommand } from "../../commands/SetCommand";
+import { DeleteCommand } from "../../commands/DeleteCommand";
+import { MoveCommand } from "../../commands/MoveCommand";
 import { EditorContext } from "../../commands/EditorContext";
 import { ShapeFactory } from "../../core/ShapeFactory";
 import { boxShapeProvider, boxAttributeHandler } from "./index";
@@ -86,6 +88,19 @@ describe("box composite plugin", () => {
     const fallback = new SvgReader(createDefaultFactory()).read(xml).document.root.getChildren()[0];
     expect(fallback.getTagName()).toBe("g");
     expect(fallback).not.toBeInstanceOf(BoxShape);
+  });
+
+  it("locks required children but permits deleting the whole box", () => {
+    const ctx = setup();
+    new CreateCommand("create", "box", "b1", ["0","0","40","20"], null).execute(ctx);
+    expect(new DeleteCommand("delete", "b1-rect").execute(ctx).error).toContain("cannot modify required child");
+    expect(new MoveCommand("move", "b1-label", "1", "1").execute(ctx).error).toContain("cannot modify required child");
+    expect(new CreateCommand("create", "rect", "r2", ["0","0","1","1"], "b1").execute(ctx).error).toContain("cannot add children");
+    const remove = new DeleteCommand("delete", "b1");
+    expect(remove.execute(ctx).error).toBeUndefined();
+    expect(locateShape(ctx.document!, "b1")).toBeNull();
+    remove.undo(ctx);
+    expect(locateShape(ctx.document!, "b1")).not.toBeNull();
   });
 
   it("cannot ungroup the composite", () => {
