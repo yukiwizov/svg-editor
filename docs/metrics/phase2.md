@@ -1,8 +1,8 @@
 # Generated Phase 2 metrics
 
 - Baseline tag: 1252ff61d90b3a841d91cb4b44dc2afd4a988708
-- Measured HEAD: ef29e4ff9d720c3c959c28f848eaa2b75623751e
-- Commits after baseline: 37
+- Measured HEAD: 3df748b9a3324fd9d955ecfa29bcad9f65f198d9
+- Commits after baseline: 39
 
 ## Module inventory
 
@@ -178,3 +178,5 @@ Proxy counts if/for/while/case/catch, &&, || and conditional operators after str
 - dfdedc4 fix(phase2): validate package metadata and archive metrics output
 - 3aaa9fb fix(vscode): reject non-SVG and multiple-root outline documents
 - ef29e4f docs(phase2): document package manifests and CI artifacts
+- 19b70a6 chore(phase2): add local validation artifacts
+- 3df748b docs(phase2): complete architecture and validation notes
