@@ -4,6 +4,7 @@ import { SvgReader } from "../io/SvgReader";
 import { SvgWriter } from "../io/SvgWriter";
 import { CommandHistory } from "./CommandHistory";
 import { AttributeHandler } from "./AttributeHandler";
+import { TreeDecorator } from "../cli/TreeDecorator";
 
 /**
  * 命令层与 CLI 层共享的"环境"：
@@ -25,6 +26,7 @@ export class EditorContext {
   readonly writer: SvgWriter;
   readonly history: CommandHistory;
   readonly attributeHandlers: AttributeHandler[] = [];
+  readonly treeDecorators: TreeDecorator[] = [];
 
   constructor() {
     this.document = null;

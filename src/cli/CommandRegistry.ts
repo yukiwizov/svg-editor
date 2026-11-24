@@ -27,6 +27,8 @@ export class CommandRegistry {
     this.builders.set(name, builder);
   }
 
+  unregister(name: string): void { this.builders.delete(name); }
+
   has(name: string): boolean {
     return this.builders.has(name);
   }

@@ -33,6 +33,7 @@ export class ShapeFactory {
 
   /** 插件化阶段会从这里扩展；本阶段只用内置注册。 */
   register(name: string, creator: Creator, domCreator: DomCreator): void {
+    if (this.creators.has(name)) throw new Error(`duplicate registration: shape/${name}`);
     this.creators.set(name, creator);
     this.domCreators.set(name, domCreator);
   }
@@ -44,6 +45,13 @@ export class ShapeFactory {
       return provider.createFromDom(id, attrs, text);
     });
   }
+
+  unregister(name: string): void {
+    this.creators.delete(name);
+    this.domCreators.delete(name);
+  }
+
+  names(): string[] { return Array.from(this.creators.keys()); }
 
   isRegistered(name: string): boolean {
     return this.creators.has(name);

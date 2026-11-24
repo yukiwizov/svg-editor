@@ -13,7 +13,7 @@ export class TreeCommand implements Command {
     if (!ctx.document) {
       return err("no document. use 'init' or 'read' first");
     }
-    const renderer = new Renderer();
+    const renderer = new Renderer(ctx.treeDecorators);
     if (this.id === null) {
       return { lines: renderer.renderTree(ctx.document) };
     }

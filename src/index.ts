@@ -49,20 +49,24 @@ async function loadPlugins(host: PluginHost): Promise<void> {
     }
     const item = entry as {module: string; enabled?: boolean; options?: Record<string, unknown>};
     if (item.enabled === false) continue;
+    const resolved = item.module.startsWith(".") ? path.resolve(path.dirname(configPath), item.module) : item.module;
+    let resolvedModule: string;
+    try { resolvedModule = require.resolve(resolved, { paths: [path.dirname(configPath)] }); }
+    catch { console.error(`error: plugin not found: ${item.module}`); continue; }
     let loaded: unknown;
-    try {
-      const resolved = item.module.startsWith(".") ? path.resolve(path.dirname(configPath), item.module) : item.module;
-      loaded = require(resolved);
-    } catch (error) {
+    try { loaded = require(resolvedModule); }
+    catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`error: plugin failed to activate: ${item.module} (${message})`); continue;
     }
     const plugin = (loaded as {default?: PluginManifest})?.default;
     if (!plugin) { console.error(`error: plugin has no default export: ${item.module}`); continue; }
-    try { plugin.activate(host, item.options ?? {}); }
+    try { host.activate(plugin, item.options ?? {}); }
     catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`error: plugin failed to activate: ${plugin.name} (${message})`);
+      if (message.startsWith("manifest mismatch:")) console.error(`error: plugin ${message}`);
+      else if (message.startsWith("duplicate registration:")) console.error(`error: ${message}`);
+      else console.error(`error: plugin failed to activate: ${plugin.name} (${message})`);
     }
   }
 }
@@ -72,9 +76,8 @@ async function main(): Promise<void> {
   registerBuiltinCommands(registry);
   const dispatcher = new CommandDispatcher(registry);
   const ctx = new EditorContext();
-  const host = new PluginHost(ctx.factory, registry);
+  const host = new PluginHost(ctx.factory, registry, ctx.attributeHandlers, ctx.treeDecorators);
   await loadPlugins(host);
-  ctx.attributeHandlers.push(...host.attributes);
   const repl = new Repl(makeReadlineIO(), dispatcher, ctx);
   await repl.run();
 }
