@@ -96,8 +96,12 @@ export class SvgReader {
     const textContent = tag === "text" ? (elem.textContent ?? "") : null;
 
     const providerTag = tag === "g" && attrs["data-kind"] === "box" && this.factory.isRegistered("box") ? "box" : tag;
+    const childElements = providerTag === "box" ? Array.from(elementChildren(elem)) : [];
+    if (providerTag === "box" && (childElements.length !== 2 || localNameOf(childElements[0]) !== "rect" || localNameOf(childElements[1]) !== "text")) {
+      throw new Error("box SVG must contain exactly rect followed by text");
+    }
     const structuralChildren = providerTag === "box"
-      ? Array.from(elementChildren(elem), child => this.buildShape(child, assigner, warnings)).filter((child): child is import("../core/Shape").Shape => child !== null)
+      ? childElements.map(child => this.buildShape(child, assigner, warnings)).filter((child): child is import("../core/Shape").Shape => child !== null)
       : undefined;
     const shape = this.factory.createFromDom(providerTag, id, attrs, textContent, structuralChildren);
     if (!shape) {

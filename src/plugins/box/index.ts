@@ -1,6 +1,8 @@
 import { ShapeProvider } from "../../core/ShapeProvider";
 import { AttributeHandler } from "../../commands/AttributeHandler";
 import { BoxShape } from "./BoxShape";
+import { Rect } from "../../core/Rect";
+import { TextShape } from "../../core/TextShape";
 import { BoxAttributeHandler } from "./BoxAttributeHandler";
 
 export const boxShapeProvider: ShapeProvider = {
