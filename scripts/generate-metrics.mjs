@@ -22,7 +22,7 @@ const baselineComplexity = baselineFiles.reduce((sum, file) => sum + complexity(
 const currentComplexity = rows.reduce((sum, row) => sum + row.complexity, 0);
 const modules = new Map();
 for (const row of rows) {
-  const name = row.file.split("/")[1] ?? "root";
+  const name = row.file === "src/index.ts" || row.file === "src/plugins/assembleA.ts" || row.file === "src/plugins/PluginLoader.ts" ? "assembly" : row.file.startsWith("src/plugins/") ? "plugins" : row.file.startsWith("src/core/") ? "kernel-core" : row.file.startsWith("src/commands/") ? "kernel-commands" : row.file.startsWith("src/cli/") ? "kernel-cli" : row.file.startsWith("src/io/") ? "kernel-io" : row.file.includes("/__arch__/") ? "architecture-tests" : row.file.includes("/__test-utils__/") ? "test-support" : "other";
   const item = modules.get(name) ?? { files: 0, lines: 0, complexity: 0 };
   item.files++; item.lines += row.lines; item.complexity += row.complexity;
   modules.set(name, item);

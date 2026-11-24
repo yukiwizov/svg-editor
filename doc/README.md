@@ -237,7 +237,7 @@ core  ←  io  ←  commands  ←  cli  ←  index
 
 ## 五、已知限制
 
-- **`box` 复合图形未实现**：按文档 §4.4，`box` 属于后续插件化阶段的目标类型；本阶段 `create box` 报 `unknown shape type: box (is the plugin loaded?)`（有测试覆盖）。
+- **Phase 1 baseline 不包含 `box`**：Phase 2 通过独立 Box 插件实现该复合图形；不加载插件时，`create box` 仍返回 `unknown shape type: box (is the plugin loaded?)`。
 - **SVG `transform` 属性**：读入时忽略并警告，输出时一律扁平坐标。理由见"变化点假设 #3"。
 - **`scale` 的 undo 精度**：使用 `scaleFromOrigin(1/factor)`，存在 ~1e-15 浮点误差（测试用 `toBeCloseTo`）；`factor` 特殊值（如 1/3）无法完全精确逆变换。Phase 1 接受。
 - **PowerShell 管道 TTY 差异**：见"过程记录 · 案例 5"。
@@ -260,7 +260,7 @@ core  ←  io  ←  commands  ←  cli  ←  index
 ### 2. Plugin registration
 
 - PluginManifest 在 src/plugins/PluginHost.ts 定义，必须提供稳定 name、contributes 和 activate。
-- PluginHost.activate 在激活前记录各类别注册快照，激活后比较实际新增名称与 manifest；不一致或激活异常时撤销本次新增注册。
+- PluginHost.activate 为每个插件创建独立暂存上下文；先核对实际暂存项与 manifest，再提交到 live registries。激活失败或 manifest 不匹配时不产生部分注册。
 - 多个 AttributeHandler 命中同一属性时，按插件注册顺序采用第一个 handler；handles 必须只判断、不修改状态。
 - AttributeHandler 的 capture/apply/restore 提供 memento 事务。handler 抛错或返回非成功结果时恢复原状态；成功的 set 命令作为一个 Phase 1 undo 单元。
 - plugins.config.json 的模块路径相对配置文件解析；包名按 Node 模块解析；enabled:false 跳过；options 原样传入 activate。
