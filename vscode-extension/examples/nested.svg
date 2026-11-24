@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <g id="scene">
+    <rect id="background" x="0" y="0" width="640" height="360" fill="#f4f4f4"/>
+    <g id="content">
+      <circle id="sun" cx="500" cy="80" r="32" fill="#f5b942"/>
+      <text id="caption" x="40" y="80">Nested SVG outline</text>
+      <g>
+        <ellipse id="shadow" cx="200" cy="270" rx="90" ry="18"/>
+      </g>
+    </g>
+  </g>
+</svg>

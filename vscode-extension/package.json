@@ -1,0 +1,41 @@
+{
+  "name": "svg-editor-vscode",
+  "displayName": "SVG Editor Explorer & Outline",
+  "description": "SVG Explorer decorations and nested element outline for svg-editor Phase 2.",
+  "version": "0.1.0",
+  "publisher": "yukiwizov",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/*.svg",
+    "onLanguage:xml",
+    "onLanguage:svg"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "svg",
+        "aliases": [
+          "SVG"
+        ],
+        "extensions": [
+          ".svg"
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p ."
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0"
+  }
+}
