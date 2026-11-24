@@ -47,6 +47,8 @@ export function parseSvgOutline(document: vscode.TextDocument): vscode.DocumentS
     const start = document.positionAt(open);
     const tagEnd = document.positionAt(end + 1);
 
+    if (!closing && stack.length === 0 && (roots.length > 0 || name !== "svg")) return [];
+
     if (closing) {
       const top = stack.pop();
       if (!top || top.name !== name) return [];
